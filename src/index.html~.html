@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html ng-app="address-explorer">
+<head>
+    <link rel="stylesheet" href="vendors/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="vendors/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="css/app.css">
+    <title>Airbitz Wallet Recovery</title>
+    <style>
+      .locked {
+        border: transparent solid 1px;
+        background-color: transparent;
+        color: #FFF;
+      }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container" data-ng-controller="HeaderController">
+        <div class="navbar-header">
+          <a class="explorer navbar-brand" href="#/browse/"><i class="fa fa-chevron-left"></i> Wallet Explorer</a>
+          <form name="form" class="form navbar-form navbar-left" novalidate>
+            <div class="input-group">
+                <input type="text"
+                  name="masterSeed"
+                  class="form-control"
+                  style="width: 600px"
+                  placeholder="Airbitz master seed"
+                  required=""
+                  seed-validator>
+                <span class="input-group-btn">
+                  <button ng-if="!set" type="submit" ng-disabled="form.$invalid" class="btn btn-default"><i class="fa fa-arrow-right"></i></button>
+                </span>
+            </div>
+            <button ng-if="set" type="submit" ng-click="change()" class="btn btn-default"><i class="fa fa-times"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="main">
+        <div class="screen" ui-view>
+            <h1 class="text-center">
+                <i class="fa fa-spinner fa-spin"></i> Loading
+            </h1>
+        </div>
+    </div>
+    <script src="js/bitcore.js"></script>
+    <script src="js/qrcode.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
+<!-- vim:set ft=html sw=2 ts=2 et: -->
