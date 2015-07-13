@@ -57,11 +57,14 @@ function setAddresses(){
 }
 
 function setUTXOs(arrayOfAddresses){
+	var numOfAddrInBlock = (arrayOfAddresses.length - 1);
+	arrayOfAddresses = arrayOfAddresses.slice((numOfAddrInBlock - blockSize),numOfAddrInBlock);
 	arrayOfAddresses = arrayOfAddresses.join(); // Comma seperated addrs.
 	$.get(api + "addrs/" + arrayOfAddresses + "/utxo", function( data ) {
 		extractUTOs(data);
 		checkAddrBlock();
 	});
+	
 }
 function extractUTOs(data){
 	for(x in data){
@@ -72,18 +75,19 @@ function extractUTOs(data){
 function checkAddrBlock(){
 	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
 	for(var counter = (addressBlock.length-blockSize)/*50 - 50 = 0;*/; counter <= blockSize; counter++){
-		console.log("Checking addr #" + counter + " : " + addressBlock[counter]);
 		checkAddr(addressBlock[counter]);
 	}
+	console.log("Done checking. Addr is " + used ); 
 	if(used){
 		setAddresses();
-	} else{ // If no used in block, then assume there's no more used addrs in the Seed, finish proccess.
+	} else { // If no used in block, then assume there's no more used addrs in the Seed, finish proccess.
 		finishProcessingSeed();
 	}
 }
 function checkAddr(addr){
+	console.log("Checking addr"); // 200
 	$.get( api + "addr/" + addr + "/totalReceived", function(data){
-		var totalReceived = data;
+		totalReceived = data;
 		unconfirmed = 0;
 		if(sweepUnconfirmed){
 			setUnconfirmed(addr);
@@ -105,13 +109,6 @@ function checkIfUsed(){
 		used = false;
 	}
 }
-function getBalance(arrayOfUtos){
-	for(x in arrayOfUtos){
-			totalBalance += arrayOfUtos[x].amount;
-	}
-	return totalBalance;
-}
-
 function transErr(e){
 	
 	var response = "";
@@ -134,6 +131,14 @@ function finishProcessingSeed(){
 	getBalance(utos);
 	var totalToSend = (totalBalance - minerFee);
 	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend );
+	console.log("finished");
+}
+
+function getBalance(arrayOfUtos){
+	for(x in arrayOfUtos){
+		totalBalance += arrayOfUtos[x].amount;
+	}
+	return totalBalance;
 }
 
 // ** SWEEP FUNDS ** 
