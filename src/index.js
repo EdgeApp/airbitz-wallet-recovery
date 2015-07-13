@@ -29,8 +29,6 @@ var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", inva
 // ** Process HD Seed ** 
 
 function processSeed(prs){
-	$(".error-screen").addClass( "hidden"); // Hide
-	$(".loading-screen").toggleClass( "hidden"); // Show
 	console.log("Start Processing Private Key");
 	
 	index = 0;
@@ -64,7 +62,6 @@ function setUTXOs(arrayOfAddresses){
 		extractUTOs(data);
 		checkAddrBlock();
 	});
-	
 }
 function extractUTOs(data){
 	for(x in data){
@@ -77,7 +74,6 @@ function checkAddrBlock(){
 	for(var counter = (addressBlock.length-blockSize)/*50 - 50 = 0;*/; counter <= blockSize; counter++){
 		checkAddr(addressBlock[counter]);
 	}
-	console.log("Done checking. Addr is " + used ); 
 	if(used){
 		setAddresses();
 	} else { // If no used in block, then assume there's no more used addrs in the Seed, finish proccess.
@@ -85,7 +81,6 @@ function checkAddrBlock(){
 	}
 }
 function checkAddr(addr){
-	console.log("Checking addr"); // 200
 	$.get( api + "addr/" + addr + "/totalReceived", function(data){
 		totalReceived = data;
 		unconfirmed = 0;
@@ -130,8 +125,9 @@ function finishProcessingSeed(){
 	$(".loading-screen").toggleClass("hidden"); // Hide
 	getBalance(utos);
 	var totalToSend = (totalBalance - minerFee);
-	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend );
-	console.log("finished");
+	console.log(totalBalance);
+	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + minerFee + ")" );
+	console.log("Finished Processing Seed");
 }
 
 function getBalance(arrayOfUtos){
@@ -170,6 +166,8 @@ function btcToSatoshis(btcAmt){
 
 $(function() {
 	$( "#recover-button" ).click(function() {
+		$(".loading-screen").toggleClass( "hidden"); // Show
+		$(".error-screen").addClass( "hidden"); // Hide
 		var input = $("#masterSeed").val();
 		try{
 			processSeed(input);
