@@ -1,0 +1,15 @@
+{
+  "name": "Airbitz Wallet Explorer",
+  "description": "Explorer your Airbitz wallets",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "icons": {
+      "128": "src/imgs/icon_128.png"
+  },
+  "app": {
+    "background": {
+        "scripts": ["src/background.js"]
+    }
+  },
+  "minimum_chrome_version": "34.0"
+}
