@@ -13,7 +13,7 @@ var derived;
 var minerFee = 0.0005;
 var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
-var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
+var blockSize = 200; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 
 // Per address
 var unconfirmed = 0;
