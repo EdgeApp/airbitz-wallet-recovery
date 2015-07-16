@@ -34,3 +34,6 @@ body {
 .hidden{
 	display: none;
 }
+.error-screen{
+	margin-top:10px;
+}

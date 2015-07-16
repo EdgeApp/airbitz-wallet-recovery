@@ -1,9 +1,11 @@
 // Utility to Recover funds from an Airbitz HD Seed.
 
 var bitcore = require('bitcore');
+var Insight = require('bitcore-explorers').Insight;
+var insight = new Insight();
+
 var api = "https://insight.bitpay.com/api/";
 var sweepUnconfirmed = true;
-
 var HDPrivateKey = bitcore.HDPrivateKey;
 var index;
 var addressBlock = [];
@@ -112,11 +114,8 @@ function transErr(e){
 		case empty:
 			response = emptyResponse;
 			break;
-		case invalidSeed: // To do, catch all Invalid seed error messages
-			response = invalidResponse;
-			break;
 		default:
-			response = e;
+			response = invalidResponse;
 	}
 	return response;
 }
@@ -144,10 +143,10 @@ function sweepFunds(toBTCAddr){
 	var transaction = createTransaction(toBTCAddr);
 	console.log(transaction.serialize() );
   
-  $.post(  api + "tx/send", transaction.serialize())
+  /*$.post(  api + "tx/send", transaction.serialize())
   .done(function( data ) {
     alert( "Transaction Sent: " + data );
-  });
+  });*/
 }
 function createTransaction(addr){
     console.log("Miner Fee: " + btcToSatoshis(minerFee))
@@ -158,6 +157,16 @@ function createTransaction(addr){
     .fee(btcToSatoshis(minerFee))
     .sign(privKeySet);
     return transaction;
+}
+function broadcastTx(tx){
+	insight.broadcast(tx, function(err, returnedTxId) {
+		if (err) {
+			// Handle errors...
+		} else {
+			// Mark the transaction as broadcasted
+			return returnedTxId;
+		}
+	});
 }
 
 function btcToSatoshis(btcAmt){
