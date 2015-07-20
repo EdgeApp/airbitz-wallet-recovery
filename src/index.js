@@ -57,18 +57,40 @@ function setAddresses(){
 }
 
 function setUTXOs(arrayOfAddresses){
-	var numOfAddrInBlock = (arrayOfAddresses.length - 1);
-	arrayOfAddresses = arrayOfAddresses.slice((numOfAddrInBlock - blockSize),numOfAddrInBlock);
-	arrayOfAddresses = arrayOfAddresses.join(); // Comma seperated addrs.
+	arrayOfAddresses = getBlockAddresses(arrayOfAddresses);
 	$.get(api + "addrs/" + arrayOfAddresses + "/utxo", function( data ) {
 		extractUTOs(data);
 		checkAddrBlock();
 	});
 }
+function getBlockAddresses(arrayOfAddresses){
+	var numOfAddrInBlock = (arrayOfAddresses.length - 1);
+	arrayOfAddresses = arrayOfAddresses.slice((numOfAddrInBlock - blockSize),numOfAddrInBlock);
+	arrayOfAddresses = arrayOfAddresses.join(); // Comma seperated addrs.
+	
+	return arrayOfAddresses;
+}
 function extractUTOs(data){
 	for(x in data){
 		utos.push(data[x]);
 	}
+}
+
+function setTableBlock(){
+	for(var x = 0;x <= blockSize ;x++){
+		
+	}
+	$("#seed-info").removeClass("hidden");
+}
+
+function updateTable(seedIndex,address,amount,privateKey){
+	$("#seed-info").children("tbody").append("<tr>"
+										+ "<td>" + seedIndex + "</td>"
+										+ "<td>" + address + "</td>"
+										+ "<td>" + amount + "</td>"
+										+ "<td>" + privateKey + "</td>"
+										+ "</tr>"
+										);								
 }
 
 function checkAddrBlock(){
