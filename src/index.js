@@ -76,13 +76,33 @@ function extractUTOs(data){
 	}
 }
 
-function setTableBlock(){
-	for(var x = 0;x <= blockSize ;x++){
-		
+function checkAddrBlock(){
+	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
+	var startingPoint = (addressBlock.length-blockSize); // Nubmer of Addresses - Blocksize
+	var lastPt = 0;
+	console.log(utos);
+	for(var counter = 0/*50 - 50 = 0;*/; counter <= blockSize; counter++){
+		lastPt = (counter + (startingPoint - 1));
+		checkAddr(addressBlock[lastPt]);
+		console.log(lastPt);
+		setTable(lastPt);
 	}
-	$("#seed-info").removeClass("hidden");
+	$("#seed-info").removeClass("hidden"); // Show table
+	if(used){
+		setAddresses();
+	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
+		finishProcessingSeed();
+	}
 }
-
+function setTable(tableIndex){
+	if(typeof utos[tableIndex] === 'undefined'){var spendable = 0;}
+	else{ spendable = utos[tableIndex].amount; }
+	updateTable(tableIndex,
+	addressBlock[tableIndex],
+	spendable,
+	privKeySet[tableIndex]
+	);
+}
 function updateTable(seedIndex,address,amount,privateKey){
 	$("#seed-info").children("tbody").append("<tr>"
 										+ "<td>" + seedIndex + "</td>"
@@ -93,19 +113,6 @@ function updateTable(seedIndex,address,amount,privateKey){
 										);								
 }
 
-function checkAddrBlock(){
-	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
-	var startingPoint = (addressBlock.length-blockSize); // Nubmer of Addresses - Blocksize
-	console.log(used);
-	for(var counter = 0/*50 - 50 = 0;*/; counter <= blockSize; counter++){
-		checkAddr(addressBlock[(counter + (startingPoint - 1))]);
-	}
-	if(used){
-		setAddresses();
-	} else { // If no used in block, then assume there's no more used addrs in the Seed, finish proccess.
-		finishProcessingSeed();
-	}
-}
 function checkAddr(addr){
 	$.get( api + "addr/" + addr + "/totalReceived", function(data){
 		totalReceived = data;
@@ -124,7 +131,6 @@ function setUnconfirmed(addr){
 	});
 }
 function checkIfUsed(){
-	console.log("Total Received and unconfirmed: " + (totalReceived + unconfirmed));
 	if((totalReceived + unconfirmed) > 0){
 		used = true;
 	} else {
