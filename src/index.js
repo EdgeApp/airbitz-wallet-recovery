@@ -93,13 +93,16 @@ function checkAddrBlock(){
 	}
 }
 function setTable(tableIndex){
+	var hasFunds = false;
 	var order = matchAddress();
 	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
 	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
+	if(spendable > 0){ hasFunds = true; }
 	updateTable(tableIndex,
 	addressBlock[tableIndex],
 	spendable,
-	privKeySet[tableIndex]
+	privKeySet[tableIndex],
+	hasFunds
 	);
 }
 function matchAddress(){
@@ -112,14 +115,19 @@ function matchAddress(){
 function clearTable(){
 	$("#seed-info").children("tbody").children("tr").remove(); 
 }
-function updateTable(seedIndex,address,amount,privateKey){
-	$("#seed-info").children("tbody").append("<tr>"
+function updateTable(seedIndex,address,amount,privateKey,hasFunds){
+	var hdClass = "index-" + seedIndex;
+	$("#seed-info").children("tbody").append("<tr class=\"" + hdClass + "\">"
 										+ "<td>" + seedIndex + "</td>"
 										+ "<td>" + address + "</td>"
 										+ "<td>" + amount + "</td>"
 										+ "<td>" + privateKey + "</td>"
 										+ "</tr>"
-										);								
+		);
+		console.log(hasFunds);
+	if(hasFunds){
+		$("." + hdClass).addClass("success");
+	}
 }
 
 function checkAddr(addr){
