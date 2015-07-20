@@ -189,18 +189,14 @@ function getBalance(arrayOfUtos){
 function sweepFunds(toBTCAddr){
 	console.log("Start Sweep");
 	var transaction = createTransaction(toBTCAddr);
-	console.log(transaction.serialize() );
-  
-  /*$.post(  api + "tx/send", transaction.serialize())
-  .done(function( data ) {
-    alert( "Transaction Sent: " + data );
-  });*/
+	console.log(transaction );
+	console.log(broadcastTx(transaction));
 }
 function createTransaction(addr){
     console.log("Miner Fee: " + btcToSatoshis(minerFee))
 	var transaction = new bitcore.Transaction()
     .from(utos)          
-    .to(addr, btcToSatoshis(totalBalance))
+    .to(addr, (btcToSatoshis(totalBalance) - btcToSatoshis(minerFee)))
     .change(addr) // Send everything, even change for sweep
     .fee(btcToSatoshis(minerFee))
     .sign(privKeySet);
