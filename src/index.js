@@ -80,11 +80,9 @@ function checkAddrBlock(){
 	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
 	var startingPoint = (addressBlock.length-blockSize); // Nubmer of Addresses - Blocksize
 	var lastPt = 0;
-	console.log(utos);
 	for(var counter = 0/*50 - 50 = 0;*/; counter <= blockSize; counter++){
 		lastPt = (counter + (startingPoint - 1));
 		checkAddr(addressBlock[lastPt]);
-		console.log(lastPt);
 		setTable(lastPt);
 	}
 	$("#seed-info").removeClass("hidden"); // Show table
@@ -95,13 +93,24 @@ function checkAddrBlock(){
 	}
 }
 function setTable(tableIndex){
-	if(typeof utos[tableIndex] === 'undefined'){var spendable = 0;}
-	else{ spendable = utos[tableIndex].amount; }
+	var order = matchAddress();
+	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
+	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
 	updateTable(tableIndex,
 	addressBlock[tableIndex],
 	spendable,
 	privKeySet[tableIndex]
 	);
+}
+function matchAddress(){
+	var addressLocation = [];
+	addressLocation = jQuery.map( utos, function( n, i ) {
+		return addressBlock.indexOf(n.address);
+	});
+	return addressLocation;
+}
+function clearTable(){
+	$("#seed-info").children("tbody").children("tr").remove(); 
 }
 function updateTable(seedIndex,address,amount,privateKey){
 	$("#seed-info").children("tbody").append("<tr>"
@@ -209,6 +218,8 @@ $(function() {
 		$(".loading-screen").toggleClass( "hidden"); // Show
 		$(".error-screen").addClass( "hidden"); // Hide
 		var input = $("#masterSeed").val();
+		
+		clearTable();
 		try{
 			processSeed(input);
 		} catch(e) {
