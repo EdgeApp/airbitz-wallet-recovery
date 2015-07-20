@@ -95,8 +95,10 @@ function updateTable(seedIndex,address,amount,privateKey){
 
 function checkAddrBlock(){
 	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
-	for(var counter = (addressBlock.length-blockSize)/*50 - 50 = 0;*/; counter <= blockSize; counter++){
-		checkAddr(addressBlock[counter]);
+	var startingPoint = (addressBlock.length-blockSize); // Nubmer of Addresses - Blocksize
+	console.log(used);
+	for(var counter = 0/*50 - 50 = 0;*/; counter <= blockSize; counter++){
+		checkAddr(addressBlock[(counter + (startingPoint - 1))]);
 	}
 	if(used){
 		setAddresses();
@@ -122,6 +124,7 @@ function setUnconfirmed(addr){
 	});
 }
 function checkIfUsed(){
+	console.log("Total Received and unconfirmed: " + (totalReceived + unconfirmed));
 	if((totalReceived + unconfirmed) > 0){
 		used = true;
 	} else {
