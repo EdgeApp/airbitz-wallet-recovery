@@ -279,7 +279,6 @@ $(function() {
 	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
 		$(this).siblings().toggleClass("hidden");
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
-		
 	});
 	
 });

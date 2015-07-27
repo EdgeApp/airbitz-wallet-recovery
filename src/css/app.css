@@ -32,16 +32,18 @@ body {
 .seed-input{
 	width: 263%;
 }
-.hidden{
-	display: none;
+#col-prk{
+	width:642px;
+}
+.invisible{
+	visibility: hidden;
 }
 .error-screen{
 	margin-top:10px;
 }
-#seed-info{
 
-}
 .table-container{
 padding-top:20px;
 }
+
 
