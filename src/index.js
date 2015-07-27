@@ -50,9 +50,8 @@ function processSeed(prs){
 	totalBalance = 0;
 	seedData = [];
 	if(seedPros > 1){ dataTable.clear() }
-	else { 
+	else {
 		createTable();
-		$(".table-container").removeClass("hidden");
 		 }
 	
 	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
@@ -184,6 +183,7 @@ function transErr(e){
 }
 
 function finishProcessingSeed(){
+	$(".table-container").removeClass("hidden");
 	$(".loading-screen").toggleClass("hidden"); // Hide
 	getBalance(utos);
 	var totalToSend = (totalBalance - minerFee);
