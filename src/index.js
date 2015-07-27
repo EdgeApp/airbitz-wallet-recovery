@@ -11,6 +11,7 @@ var index;
 var seedPros = 0;
 var addressBlock = [];
 var privKeySet = [];
+var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
 var address;
 var derived;
 var minerFee = 0.0001;
@@ -56,6 +57,7 @@ function processSeed(prs){
 
 	setAddresses();
 }
+
 function setAddresses(){
 	for(var x = 0;x <= blockSize ;x++){
 		// Derive the next address.
@@ -112,13 +114,16 @@ function checkAddrBlock(){
 function setTable(tableIndex){
 	var hasFunds = false;
 	var order = matchAddress();
+	
 	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
 	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
+	
 	if(spendable > 0){ hasFunds = true; }
+	
 	updateTable(tableIndex,
 	addressBlock[tableIndex],
 	spendable,
-	privKeySet[tableIndex],
+	("<span class=\"hidden\">" + privKeySet[tableIndex] + "</span><button class=\"btn btn-link prk\">Show Private Key</button>"),
 	hasFunds
 	);
 }
@@ -136,19 +141,6 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey]);
 	dataTable.row.add(seedData[seedIndex]).draw();
-	/*
-	var addressLink = "<a target=\"0\" href=\"https://insight.bitpay.com/address/" + address + "\">";
-	$("#seed-info").children("tbody").append("<tr class=\"" + hdClass + "\">"
-										+ "<td>" + seedIndex + "</td>"
-										+ "<td>" + addressLink + address + "</a></td>"
-										+ "<td>" + amount + "</td>"
-										+ "<td><span class=\"hidden\" id=\"prk" + seedIndex + "\">" + privateKey + "</span></td>"
-										+ "</tr>"
-		);
-		
-	if(hasFunds){
-		$("." + hdClass).addClass("success");
-	} */
 }
 
 function checkAddr(addr){
@@ -247,7 +239,7 @@ function createTable(){
 	dataTable = $("#seed-info").DataTable(
 	{
 		paging: true,
-		ordering: false,
+		ordering: false,/*
 		"aoColumns": [
 		{ "sClass": "col-index" },
 		{ "sClass": "col-addr" },
@@ -255,10 +247,12 @@ function createTable(){
 		{ "sClass": "col-prk" }
 		],
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-          $('td:eq(0)', nRow).addClass( "col-index-" + rowCount );
-          $('td:eq(1),td:eq(2),td:eq(3)', nRow).addClass( "avo-light" );
+          $('td:eq(0)', nRow).addClass( "seed-index" );
+          $('td:eq(1)', nRow).addClass( "seed-address" );
+          $('td:eq(2)', nRow).addClass( "seed-spendable" );
+          $('td:eq(3)', nRow).addClass( "seed-prk" );
           rowCount++;
-        }
+        }*/
     });
 }
 
@@ -282,9 +276,10 @@ $(function() {
 		var useraddr = $("#btcAddr").val();
 		sweepFunds(useraddr);
 	});
-	$("[id^=prk]").click(function() {
-		this.toggle();
-		console.log("clicked!");
+	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
+		$(this).siblings().toggleClass("hidden");
+		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
+		
 	});
 	
 });
