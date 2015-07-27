@@ -33,6 +33,7 @@ var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
 
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
+var networkErrMessage = "Network Connection Error";
 
 // ** Process HD Seed ** 
 
@@ -81,6 +82,9 @@ function setUTXOs(arrayOfAddresses){
 	$.get(api + "addrs/" + arrayOfAddresses + "/utxo", function( data ) {
 		extractUTOs(data);
 		checkAddrBlock();
+	})
+	.fail(function() {
+		showErrMessage(networkErrMessage);	
 	});
 }
 function getBlockAddresses(arrayOfAddresses){
@@ -153,12 +157,18 @@ function checkAddr(addr){
 		} else {
 			checkIfUsed();
 		}
-	 });
+	 })
+	.fail(function() {
+		showErrMessage(networkErrMessage);	
+	});
 }
 function setUnconfirmed(addr){
 	$.get( api + "addr/" + addr + "/unconfirmedBalance", function( data ) {
 		if(data >= 0) { unconfirmed = data };
 		checkIfUsed();
+	})
+	.fail(function() {
+		showErrMessage(networkErrMessage);	
 	});
 }
 function checkIfUsed(){
@@ -169,7 +179,6 @@ function checkIfUsed(){
 	}
 }
 function transErr(e){
-	
 	var response = "";
 	
 	switch(e) {
@@ -226,6 +235,9 @@ function broadcastTx(tx){
 			// Mark the transaction as broadcasted
 			return returnedTxId;
 		}
+	})
+	.fail(function() {
+		showErrMessage(networkErrMessage);	
 	});
 }
 
@@ -256,6 +268,11 @@ function toggleAllKeys(){
 	}
 }
 
+function showErrMessage(errMessage){
+	$(".error-screen").removeClass( "hidden");
+    $(".error-message").text(errMessage);
+}
+
 $(function() {
 	//Click Handelers
 	$( "#recover-button" ).click(function() {
@@ -267,11 +284,9 @@ $(function() {
         // This function can lock the UI until it starts hitting the network
         processSeed(input);
       } catch(e) {
-        var errMes = transErr(e.message);
         console.log(e.message);
         $(".loading-screen").toggleClass( "hidden"); // Hide
-        $(".error-screen").toggleClass( "hidden");
-        $(".error-message").text(errMes);
+        showErrMessage(e.message);
       }
     }, 500);
 	});
