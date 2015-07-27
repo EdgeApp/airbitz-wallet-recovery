@@ -123,7 +123,7 @@ function setTable(tableIndex){
 	updateTable(tableIndex,
 	addressBlock[tableIndex],
 	spendable,
-	("<span class=\"hidden\">" + privKeySet[tableIndex] + "</span><button class=\"btn btn-link prk\">Show Private Key</button>"),
+	("<span class=\"invisible\">" + privKeySet[tableIndex] + "</span><button class=\"btn btn-link prk\">Show Private Key</button>"),
 	hasFunds
 	);
 }
@@ -277,7 +277,7 @@ $(function() {
 		sweepFunds(useraddr);
 	});
 	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
-		$(this).siblings().toggleClass("hidden");
+		$(this).siblings().toggleClass("invisible");
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
 	
