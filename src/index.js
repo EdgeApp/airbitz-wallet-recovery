@@ -8,14 +8,17 @@ var api = "https://insight.bitpay.com/api/";
 var sweepUnconfirmed = true;
 var HDPrivateKey = bitcore.HDPrivateKey;
 var index;
+var seedPros = 0;
 var addressBlock = [];
 var privKeySet = [];
 var address;
 var derived;
-var minerFee = 0.0005;
+var minerFee = 0.0001;
 var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
 var blockSize = 200; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
+var seedData = []; // For the table
+var dataTable; // DataTable Object
 
 // Per address
 var unconfirmed = 0;
@@ -23,7 +26,7 @@ var totalReceived;
 var used = true; // By default, assume addrs are used.
 
 var hdPrivateKey;
-var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F';
+var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
 
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
@@ -31,16 +34,26 @@ var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", inva
 // ** Process HD Seed ** 
 
 function processSeed(prs){
-	console.log("Start Processing Private Key");
-	
+	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
 	index = 0;
+	
+	checkSeed();
+	console.log("Start Processing Private Key");
+	seedPros++;
+	
 	addressBlock = [];
 	privKeySet = [];
 	utos = [];
 	totalBalance = 0;
+	seedData = [];
+	if(seedPros > 1){ dataTable.clear() }
+	else { 
+		createTable();
+		$(".table-container").removeClass("hidden");
+		 }
 	
 	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
-	
+
 	setAddresses();
 }
 function setAddresses(){
@@ -54,6 +67,10 @@ function setAddresses(){
 		index++;
 	}
 	setUTXOs(addressBlock);
+}
+
+function checkSeed(){
+	derived = hdPrivateKey.derive("m/0/0/" + index.toString());
 }
 
 function setUTXOs(arrayOfAddresses){
@@ -117,17 +134,21 @@ function clearTable(){
 }
 function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
+	seedData.push([seedIndex,address,amount,privateKey]);
+	dataTable.row.add(seedData[seedIndex]).draw();
+	/*
+	var addressLink = "<a target=\"0\" href=\"https://insight.bitpay.com/address/" + address + "\">";
 	$("#seed-info").children("tbody").append("<tr class=\"" + hdClass + "\">"
 										+ "<td>" + seedIndex + "</td>"
-										+ "<td>" + address + "</td>"
+										+ "<td>" + addressLink + address + "</a></td>"
 										+ "<td>" + amount + "</td>"
-										+ "<td>" + privateKey + "</td>"
+										+ "<td><span class=\"hidden\" id=\"prk" + seedIndex + "\">" + privateKey + "</span></td>"
 										+ "</tr>"
 		);
-		console.log(hasFunds);
+		
 	if(hasFunds){
 		$("." + hdClass).addClass("success");
-	}
+	} */
 }
 
 function checkAddr(addr){
@@ -172,7 +193,6 @@ function finishProcessingSeed(){
 	$(".loading-screen").toggleClass("hidden"); // Hide
 	getBalance(utos);
 	var totalToSend = (totalBalance - minerFee);
-	console.log(totalBalance);
 	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + minerFee + ")" );
 	console.log("Finished Processing Seed");
 }
@@ -188,9 +208,11 @@ function getBalance(arrayOfUtos){
 
 function sweepFunds(toBTCAddr){
 	console.log("Start Sweep");
+	var txID = "No ID";
 	var transaction = createTransaction(toBTCAddr);
-	console.log(transaction );
-	console.log(broadcastTx(transaction));
+	txID = broadcastTx(transaction);
+	console.log(txID);
+	alert(txID);
 }
 function createTransaction(addr){
     console.log("Miner Fee: " + btcToSatoshis(minerFee))
@@ -216,14 +238,36 @@ function broadcastTx(tx){
 function btcToSatoshis(btcAmt){
     return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
 }
+function btcToBits(btcAmt){
+	return (btcAmt * 1000000);
+}
+
+function createTable(){
+	var rowCount = 0;
+	dataTable = $("#seed-info").DataTable(
+	{
+		paging: true,
+		ordering: false,
+		"aoColumns": [
+		{ "sClass": "col-index" },
+		{ "sClass": "col-addr" },
+		{ "sClass": "col-uto" },
+		{ "sClass": "col-prk" }
+		],
+		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+          $('td:eq(0)', nRow).addClass( "col-index-" + rowCount );
+          $('td:eq(1),td:eq(2),td:eq(3)', nRow).addClass( "avo-light" );
+          rowCount++;
+        }
+    });
+}
 
 $(function() {
+	//Click Handelers
 	$( "#recover-button" ).click(function() {
 		$(".loading-screen").toggleClass( "hidden"); // Show
 		$(".error-screen").addClass( "hidden"); // Hide
 		var input = $("#masterSeed").val();
-		
-		clearTable();
 		try{
 			processSeed(input);
 		} catch(e) {
@@ -234,9 +278,13 @@ $(function() {
 			$(".error-message").text(errMes);
 		}
 	});
-	
 	$("#sweep").click(function() {
 		var useraddr = $("#btcAddr").val();
 		sweepFunds(useraddr);
 	});
+	$("[id^=prk]").click(function() {
+		this.toggle();
+		console.log("clicked!");
+	});
+	
 });
