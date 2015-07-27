@@ -14,18 +14,20 @@ body {
     color: #FFF;
     font-weight: bold;
 }
+.currency-units{
+	color:white;
+}
+.currency-units: hover{
+	color:#2291cf;
+	background-color:white;
+}
 
 #main {
     padding-top: 80px;
 }
 
-.container {
-    width: 900px;
-}
 .main-header{
-	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
+	width: 1000px;
 }
 .seed-input{
 	width: 263%;
@@ -36,3 +38,10 @@ body {
 .error-screen{
 	margin-top:10px;
 }
+#seed-info{
+
+}
+.table-container{
+padding-top:20px;
+}
+
