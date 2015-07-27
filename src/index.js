@@ -12,6 +12,8 @@ var seedPros = 0;
 var addressBlock = [];
 var privKeySet = [];
 var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
+var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
+var keysToggeled = false; //All keys toggeled.
 var address;
 var derived;
 var minerFee = 0.0001;
@@ -123,7 +125,7 @@ function setTable(tableIndex){
 	updateTable(tableIndex,
 	addressBlock[tableIndex],
 	spendable,
-	("<span class=\"invisible\">" + privKeySet[tableIndex] + "</span><button class=\"btn btn-link prk\">Show Private Key</button>"),
+	("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + "</span>"),
 	hasFunds
 	);
 }
@@ -139,7 +141,7 @@ function clearTable(){
 }
 function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
-	seedData.push([seedIndex,address,amount,privateKey]);
+	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
 	dataTable.row.add(seedData[seedIndex]).draw();
 }
 
@@ -239,21 +241,19 @@ function createTable(){
 	dataTable = $("#seed-info").DataTable(
 	{
 		paging: true,
-		ordering: false,/*
-		"aoColumns": [
-		{ "sClass": "col-index" },
-		{ "sClass": "col-addr" },
-		{ "sClass": "col-uto" },
-		{ "sClass": "col-prk" }
-		],
-		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-          $('td:eq(0)', nRow).addClass( "seed-index" );
-          $('td:eq(1)', nRow).addClass( "seed-address" );
-          $('td:eq(2)', nRow).addClass( "seed-spendable" );
-          $('td:eq(3)', nRow).addClass( "seed-prk" );
-          rowCount++;
-        }*/
+		ordering: false,
+		"fnDrawCallback": function( oSettings ) {
+			toggleAllKeys();
+      }
     });
+}
+
+function toggleAllKeys(){
+	if(keysToggeled){
+		$(".prkText").removeClass("invisible");
+	} else {
+		$(".prkText").addClass("invisible");
+	}
 }
 
 $(function() {
@@ -276,8 +276,13 @@ $(function() {
 		var useraddr = $("#btcAddr").val();
 		sweepFunds(useraddr);
 	});
+	$("#seed-info").on( "click", "#toggleAllKeys", function() {
+		keysToggeled = (keysToggeled == false ? true : false);
+		toggleAllKeys();
+		$(this).text($(this).text() == hideAllKeys ? showAllKeys : hideAllKeys);
+	});
 	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
-		$(this).siblings().toggleClass("invisible");
+		$(this).parent().parent().find(".prkText").toggleClass("invisible");
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
 	
