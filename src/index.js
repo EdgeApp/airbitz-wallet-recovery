@@ -261,16 +261,19 @@ $(function() {
 	$( "#recover-button" ).click(function() {
 		$(".loading-screen").toggleClass( "hidden"); // Show
 		$(".error-screen").addClass( "hidden"); // Hide
-		var input = $("#masterSeed").val();
-		try{
-			processSeed(input);
-		} catch(e) {
-			var errMes = transErr(e.message);
-			console.log(e.message);
-			$(".loading-screen").toggleClass( "hidden"); // Hide
-			$(".error-screen").toggleClass( "hidden");
-			$(".error-message").text(errMes);
-		}
+    setTimeout(function() {
+      var input = $("#masterSeed").val();
+      try {
+        // This function can lock the UI until it starts hitting the network
+        processSeed(input);
+      } catch(e) {
+        var errMes = transErr(e.message);
+        console.log(e.message);
+        $(".loading-screen").toggleClass( "hidden"); // Hide
+        $(".error-screen").toggleClass( "hidden");
+        $(".error-message").text(errMes);
+      }
+    }, 500);
 	});
 	$("#sweep").click(function() {
 		var useraddr = $("#btcAddr").val();
