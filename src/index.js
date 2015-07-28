@@ -15,6 +15,7 @@ var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
 var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
 var keysToggeled = false; //All keys toggeled.
 var address;
+var firstSeedAddr;
 var derived;
 var minerFee = 0.0005;
 var utos = []; // Everything spendable in HD Seed
@@ -51,20 +52,21 @@ function processSeed(prs){
 	totalBalance = 0;
 	seedData = [];
 	if(seedPros > 1){ dataTable.clear() }
-	else {
-		createTable();
-		 }
-	
-	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
+		else {
+			createTable();
+		}
 
-	setAddresses();
-}
+		hdPrivateKey = new HDPrivateKey.fromSeed(prs);
 
-function setAddresses(){
-	for(var x = 0;x <= blockSize ;x++){
+		setAddresses();
+	}
+
+	function setAddresses(){
+		for(var x = 0;x <= blockSize ;x++){
 		// Derive the next address.
 		derived = hdPrivateKey.derive("m/0/0/" + index.toString());
 		address = derived.privateKey.toAddress();
+		if(index == 0){ firstSeedAddr = address.toString(); }
 		privKeySet.push(derived.privateKey.toWIF());
 		addressBlock.push(address.toString());
 		
@@ -113,9 +115,10 @@ function checkAddrBlock(){
 	if(used){
 		setAddresses();
 	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
-		finishProcessingSeed();
-	}
+	finishProcessingSeed();
 }
+}
+
 function setTable(tableIndex){
 	var hasFunds = false;
 	var order = matchAddress();
@@ -126,11 +129,11 @@ function setTable(tableIndex){
 	if(spendable > 0){ hasFunds = true; }
 	
 	updateTable(tableIndex,
-	addressBlock[tableIndex],
-	spendable,
-	("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + "</span>"),
-	hasFunds
-	);
+		addressBlock[tableIndex],
+		spendable,
+		("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + "</span>"),
+		hasFunds
+		);
 }
 function matchAddress(){
 	var addressLocation = [];
@@ -157,11 +160,12 @@ function checkAddr(addr){
 		} else {
 			checkIfUsed();
 		}
-	 })
+	})
 	.fail(function() {
 		showErrMessage(networkErrMessage);	
 	});
 }
+
 function setUnconfirmed(addr){
 	$.get( api + "addr/" + addr + "/unconfirmedBalance", function( data ) {
 		if(data >= 0) { unconfirmed = data };
@@ -171,6 +175,7 @@ function setUnconfirmed(addr){
 		showErrMessage(networkErrMessage);	
 	});
 }
+
 function checkIfUsed(){
 	if((totalReceived + unconfirmed) > 0){
 		used = true;
@@ -178,15 +183,16 @@ function checkIfUsed(){
 		used = false;
 	}
 }
+
 function transErr(e){
 	var response = "";
 	
 	switch(e) {
 		case empty:
-			response = emptyResponse;
-			break;
+		response = emptyResponse;
+		break;
 		default:
-			response = invalidResponse;
+		response = invalidResponse;
 	}
 	return response;
 }
@@ -195,8 +201,9 @@ function finishProcessingSeed(){
 	$(".table-container").removeClass("hidden");
 	$(".loading-screen").toggleClass("hidden"); // Hide
 	getBalance(utos);
-	var totalToSend = (totalBalance - minerFee);
-	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + minerFee + ")" );
+	minerFee = getFee();
+	var totalToSend = (Math.round( (totalBalance - satsToBTC(minerFee)) * 100000000) / 100000000);
+	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + satsToBTC(minerFee) + ")" );
 	console.log("Finished Processing Seed");
 }
 
@@ -214,19 +221,26 @@ function sweepFunds(toBTCAddr){
 	var txID = "No ID";
 	var transaction = createTransaction(toBTCAddr);
 	txID = broadcastTx(transaction);
-	console.log(txID);
-	alert(txID);
 }
-function createTransaction(addr){
-    console.log("Miner Fee: " + btcToSatoshis(minerFee))
+
+function getFee(){
 	var transaction = new bitcore.Transaction()
-    .from(utos)          
-    .to(addr, (btcToSatoshis(totalBalance) - btcToSatoshis(minerFee)))
-    .change(addr) // Send everything, even change for sweep
-    .fee(btcToSatoshis(minerFee))
-    .sign(privKeySet);
-    return transaction;
+	.from(utos)          
+	.to(firstSeedAddr, btcToSats(totalBalance));
+
+	return transaction._estimateFee();
 }
+
+function createTransaction(addr){
+	transaction = new bitcore.Transaction()
+	.from(utos)
+	.to(addr, (btcToSats(totalBalance) - minerFee))
+	.fee(minerFee)
+	.sign(privKeySet);
+
+	return transaction;
+}
+
 function broadcastTx(tx){
 	insight.broadcast(tx, function(err, returnedTxId) {
 		if (err) {
@@ -234,16 +248,23 @@ function broadcastTx(tx){
 			showErrMessage(err);	
 		} else {
 			// Mark the transaction as broadcasted
+			console.log("Transaction sent: " + returnedTxId);
+			alert("Transaction sent: " + returnedTxId);
 			return returnedTxId;
 		}
 	})
 }
 
-function btcToSatoshis(btcAmt){
-    return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
+function btcToSats(btcAmt){
+	return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
 }
+
 function btcToBits(btcAmt){
 	return (btcAmt * 1000000);
+}
+
+function satsToBTC(satsAmt){
+	return bitcore.Unit.fromSatoshis(satsAmt).toBTC();
 }
 
 function createTable(){
@@ -254,8 +275,8 @@ function createTable(){
 		ordering: false,
 		"fnDrawCallback": function( oSettings ) {
 			toggleAllKeys();
-      }
-    });
+		}
+	});
 }
 
 function toggleAllKeys(){
@@ -268,7 +289,7 @@ function toggleAllKeys(){
 
 function showErrMessage(errMessage){
 	$(".error-screen").removeClass( "hidden");
-    $(".error-message").text(errMessage);
+	$(".error-message").text(errMessage);
 }
 
 $(function() {
@@ -276,17 +297,17 @@ $(function() {
 	$( "#recover-button" ).click(function() {
 		$(".loading-screen").toggleClass( "hidden"); // Show
 		$(".error-screen").addClass( "hidden"); // Hide
-    setTimeout(function() {
-      var input = $("#masterSeed").val();
-      try {
+		setTimeout(function() {
+			var input = $("#masterSeed").val();
+			try {
         // This function can lock the UI until it starts hitting the network
         processSeed(input);
-      } catch(e) {
-        console.log(e.message);
+    } catch(e) {
+    	console.log(e.message);
         $(".loading-screen").toggleClass( "hidden"); // Hide
         showErrMessage(e.message);
-      }
-    }, 500);
+    }
+}, 500);
 	});
 	$("#sweep").click(function() {
 		var useraddr = $("#btcAddr").val();
