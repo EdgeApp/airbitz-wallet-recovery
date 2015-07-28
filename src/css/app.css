@@ -6,20 +6,25 @@ body {
     height: 100%;
 }
 
-.navbar-default {
+.navbar-default
+ {
     color: #FFF;
     background-color: #2291cf;
 }
-.navbar-default .navbar-brand {
+.navbar-default .navbar-brand, 
+.navbar-default .navbar-nav>li>a{
+    background-color: #2291cf;
     color: #FFF;
     font-weight: bold;
 }
-.currency-units{
-	color:white;
-}
-.currency-units: hover{
+
+
+.navbar-default .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover
+{
+	background-color: #FFF;
 	color:#2291cf;
-	background-color:white;
+	text-decoration: none;
 }
 
 #main {
