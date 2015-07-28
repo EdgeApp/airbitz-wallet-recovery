@@ -16,7 +16,7 @@ var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
 var keysToggeled = false; //All keys toggeled.
 var address;
 var derived;
-var minerFee = 0.0001;
+var minerFee = 0.0005;
 var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
 var blockSize = 200; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
@@ -231,14 +231,12 @@ function broadcastTx(tx){
 	insight.broadcast(tx, function(err, returnedTxId) {
 		if (err) {
 			// Handle errors...
+			showErrMessage(err);	
 		} else {
 			// Mark the transaction as broadcasted
 			return returnedTxId;
 		}
 	})
-	.fail(function() {
-		showErrMessage(networkErrMessage);	
-	});
 }
 
 function btcToSatoshis(btcAmt){
