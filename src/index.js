@@ -31,7 +31,9 @@ var used = true; // By default, assume addrs are used.
 
 var hdPrivateKey;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
-var qrCodeIcon = " <i class=\"fa fa-qrcode fa-lg\"></i>";
+var liBxNum = 0; var qrIndx = "qrcode-";
+var liBxNam = qrIndx + liBxNum; //Lightbox name
+var qrCodeIcon = getLiBx();
 
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
@@ -121,21 +123,29 @@ function checkAddrBlock(){
 }
 
 function setTable(tableIndex){
+	updateLiBxNum();
+
 	var hasFunds = false;
 	var order = matchAddress();
+	var tableAddr = (addressBlock[tableIndex] + qrCodeIcon);
+
+	updateLiBxNum();
+
+	var tablePrk = ("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + qrCodeIcon + "</span>");
 	
 	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
 	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
 	
 	if(spendable > 0){ hasFunds = true; }
-	
+
 	updateTable(tableIndex,
-		(addressBlock[tableIndex] + qrCodeIcon),
+		tableAddr,
 		spendable,
-		("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + qrCodeIcon + "</span>"),
+		tablePrk,
 		hasFunds
 		);
 }
+
 function matchAddress(){
 	var addressLocation = [];
 	addressLocation = jQuery.map( utos, function( n, i ) {
@@ -150,6 +160,10 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
 	dataTable.row.add(seedData[seedIndex]).draw();
+	/*
+	jQuery( ("." + qrIndx + (liBxNum-1)) ).qrcode(address);
+	jQuery( ("." + qrIndx + liBxNum) ).qrcode(privateKey);
+	*/
 }
 
 function checkAddr(addr){
@@ -292,6 +306,14 @@ function showErrMessage(errMessage){
 	$(".error-screen").removeClass( "hidden");
 	$(".error-message").text(errMessage);
 }
+function updateLiBxNum(){
+	liBxNum++;
+	liBxNam = "qrcode-" + liBxNum;
+	qrCodeIcon = getLiBx();
+}
+function getLiBx(){
+	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><span class=\"" + liBxNam + "\"></span></i>";
+}
 
 $(function() {
 	//Click Handelers
@@ -323,5 +345,16 @@ $(function() {
 		$(this).parent().parent().find(".prkText").toggleClass("invisible");
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
-	
+	$("#seed-info").on("click", ".qrcode-icon", function() { // On("Click") instead of .click() because element is created after the DOM has been create
+		console.log("Let there be light");
+		var thisCode = $(this).children().attr("class");
+		var codeImage = $("." + thisCode).qrcode("This is a test");
+		$(this).colorbox({
+			html: codeImage,
+			rel:"nofollow",
+			href:function(){
+				return ("." + thisCode);
+			}
+		});
+	});
 });

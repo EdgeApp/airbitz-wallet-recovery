@@ -2,8 +2,8 @@ html {
     height: 100%;
 }
 body {
-    overflow-y:scroll;
     height: 100%;
+    box-sizing: border-box;
 }
 
 .navbar-default {
