@@ -348,7 +348,9 @@ $(function() {
 	$("#seed-info").on("click", ".qrcode-icon", function() { // On("Click") instead of .click() because element is created after the DOM has been create
 		console.log("Let there be light");
 		var thisCode = $(this).children().attr("class");
-		var codeImage = $("." + thisCode).qrcode("This is a test");
+		var qrCodeText = $(this).parent().text();
+		console.log(qrCodeText);
+		var codeImage = $("." + thisCode).qrcode(qrCodeText);
 		$(this).colorbox({
 			html: codeImage,
 			rel:"nofollow",
