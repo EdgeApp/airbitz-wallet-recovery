@@ -31,7 +31,7 @@ var used = true; // By default, assume addrs are used.
 
 var hdPrivateKey;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
-var qrCode = " <i class=\"fa fa-qrcode fa-lg\"></i>";
+var qrCodeIcon = " <i class=\"fa fa-qrcode fa-lg\"></i>";
 
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
@@ -130,9 +130,9 @@ function setTable(tableIndex){
 	if(spendable > 0){ hasFunds = true; }
 	
 	updateTable(tableIndex,
-		(addressBlock[tableIndex] + qrCode),
+		(addressBlock[tableIndex] + qrCodeIcon),
 		spendable,
-		("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + qrCode + "</span>"),
+		("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + qrCodeIcon + "</span>"),
 		hasFunds
 		);
 }
