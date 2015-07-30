@@ -160,10 +160,10 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
 	dataTable.row.add(seedData[seedIndex]).draw();
-	/*
-	jQuery( ("." + qrIndx + (liBxNum-1)) ).qrcode(address);
-	jQuery( ("." + qrIndx + liBxNum) ).qrcode(privateKey);
-	*/
+	
+	if(hasFunds){
+		dataTable.row(seedIndex).nodes().to$().addClass('success');
+	}
 }
 
 function checkAddr(addr){
@@ -177,7 +177,7 @@ function checkAddr(addr){
 		}
 	})
 	.fail(function() {
-		showErrMessage(networkErrMessage);	
+		showErrMessage(networkErrMessage);
 	});
 }
 
