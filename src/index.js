@@ -287,7 +287,6 @@ function createTable(){
 	dataTable = $("#seed-info").DataTable(
 	{
 		paging: true,
-		ordering: false,
 		"fnDrawCallback": function( oSettings ) {
 			toggleAllKeys();
 		}
