@@ -32,8 +32,9 @@ body {
 .seed-input{
 	width: 263%;
 }
-#col-prk{
-	
+
+.modal {
+  text-align: center;
 }
 .prk{
 	float:right;

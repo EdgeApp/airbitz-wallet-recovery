@@ -308,11 +308,11 @@ function showErrMessage(errMessage){
 }
 function updateLiBxNum(){
 	liBxNum++;
-	liBxNam = "qrcode-" + liBxNum;
+	liBxNam = "qr-pic qrcode-" + liBxNum;
 	qrCodeIcon = getLiBx();
 }
 function getLiBx(){
-	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><span class=\"" + liBxNam + "\"></span></i>";
+	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i>";
 }
 
 $(function() {
@@ -347,16 +347,18 @@ $(function() {
 	});
 	$("#seed-info").on("click", ".qrcode-icon", function() { // On("Click") instead of .click() because element is created after the DOM has been create
 		console.log("Let there be light");
-		var thisCode = $(this).children().attr("class");
+		var thisCode = ($(this).children().attr("class")).replace(" ", ".");
 		var qrCodeText = $(this).parent().text();
-		console.log(qrCodeText);
+		console.log(thisCode);
 		var codeImage = $("." + thisCode).qrcode(qrCodeText);
-		$(this).colorbox({
-			html: codeImage,
-			rel:"nofollow",
-			href:function(){
-				return ("." + thisCode);
-			}
-		});
+
+		BootstrapDialog.show({
+			size: BootstrapDialog.SIZE_WIDE,
+            title: qrCodeText,
+            message: codeImage
+        });
+		thisCode = thisCode.replace(".", " ");
+		$(this).append("<div class=\"" + thisCode + "\"></div>");
+		
 	});
 });
