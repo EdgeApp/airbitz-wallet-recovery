@@ -127,11 +127,11 @@ function setTable(tableIndex){
 
 	var hasFunds = false;
 	var order = matchAddress();
-	var tableAddr = (addressBlock[tableIndex] + qrCodeIcon);
+	var tableAddr = (qrCodeIcon + addressBlock[tableIndex]);
 
 	updateLiBxNum();
 
-	var tablePrk = ("<span class=\"invisible prkText\">" + privKeySet[tableIndex] + qrCodeIcon + "</span>");
+	var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + privKeySet[tableIndex] + "</span>");
 	
 	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
 	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
@@ -311,7 +311,7 @@ function updateLiBxNum(){
 	qrCodeIcon = getLiBx();
 }
 function getLiBx(){
-	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i>";
+	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
 
 $(function() {
