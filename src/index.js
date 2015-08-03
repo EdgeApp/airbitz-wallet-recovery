@@ -352,7 +352,7 @@ $(function() {
 		var codeImage = $("." + thisCode).qrcode(qrCodeText);
 
 		BootstrapDialog.show({
-			size: BootstrapDialog.SIZE_WIDE,
+			size: BootstrapDialog.SIZE_LARGE,
             title: qrCodeText,
             message: codeImage
         });
