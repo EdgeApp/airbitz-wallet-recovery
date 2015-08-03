@@ -29,9 +29,13 @@ body {
 
 .main-header{
 	width: 1205px;
+    margin-left: 450px;
 }
 .seed-input{
-	width: 480%;
+	width: 300%;
+}
+.addr-inpt-group{
+    width: 70%;
 }
 
 .modal {
