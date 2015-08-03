@@ -5,6 +5,7 @@ var Insight = require('bitcore-explorers').Insight;
 var insight = new Insight();
 
 var api = "https://insight.bitpay.com/api/";
+var insightAddr = "https://insight.bitpay.com/address/";
 var sweepUnconfirmed = true;
 var HDPrivateKey = bitcore.HDPrivateKey;
 var index;
@@ -127,8 +128,9 @@ function setTable(tableIndex){
 
 	var hasFunds = false;
 	var order = matchAddress();
-	var tableAddr = (qrCodeIcon + addressBlock[tableIndex]);
-
+	var addrLink = "<a target=\"0\" href=\"" + insightAddr + addressBlock[tableIndex] + "\">";
+	var link2 = "</a>";
+	var tableAddr = (qrCodeIcon + (addrLink + addressBlock[tableIndex] + link2) )
 	updateLiBxNum();
 
 	var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + privKeySet[tableIndex] + "</span>");
