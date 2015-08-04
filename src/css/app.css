@@ -1,10 +1,3 @@
-html {
-    height: 100%;
-}
-body {
-    height: 100%;
-    box-sizing: border-box;
-}
 
 .navbar-default {
     color: #FFF;
@@ -13,6 +6,15 @@ body {
 .navbar-default .navbar-brand {
     color: #FFF;
     font-weight: bold;
+}
+.navbar .navbar-nav {
+    display: inline-block;
+    float: none;
+    vertical-align: top;
+}
+
+.navbar .navbar-collapse {
+    text-align: center;
 }
 .currency-units{
 	color:white;
@@ -28,14 +30,19 @@ body {
 }
 
 .main-header{
-	width: 1205px;
-    margin-left: 450px;
+    width: 1205px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 114px;
+}
+.long-input{
+    
 }
 .seed-input{
-	width: 300%;
+	width: 800px;
 }
 .addr-inpt-group{
-    width: 70%;
+    width: 600px;
 }
 
 .modal {
