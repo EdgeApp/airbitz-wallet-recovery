@@ -4,9 +4,8 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/1.0.6/css/dataTables.responsive.css">
          <!--Import materialize.css-->
-        <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
-        <!--
-        <link rel="stylesheet" href="vendors/font-awesome/css/font-awesome.css">-->
+        <link type="text/css" rel="stylesheet" href="css/materialize.css"  media="screen,projection"/>
+        <link rel="stylesheet" href="vendors/font-awesome/css/font-awesome.css">
         <link rel="stylesheet" href="css/bootstrap-dialog.css">
         <link rel="stylesheet" href="css/app.css">
          <!--Let browser know website is optimized for mobile-->
@@ -14,14 +13,22 @@
         <title>Airbitz Wallet Recovery</title>
 </head>
 <body>
- <nav class="navbar-brand">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo"><img src="imgs/logo-nav.png" class="airbitz-logo"></a>
-
-             <ul class="right hide-on-med-and-down">
-                <li><a href="#"><i class="material-icons">search</i></a></li>
-        </div>
-    </nav>
+  <!-- Dropdown Structure -->
+<ul id="dropdown1" class="dropdown-content">
+  <li><a href="#!">mBTC</a></li>
+  <li><a href="#!">BTC</a></li>
+  <li class="divider"></li>
+  <li><a href="#!">bits</a></li>
+</ul>
+<nav class="navbar-brand">
+  <div class="nav-wrapper">
+    <a href="#!" class="brand-logo airbitz-logo"><img src="imgs/logo-nav.png"></a>
+    <ul class="right">
+      <!-- Dropdown Trigger -->
+      <li><a class="dropdown-button" href="#!" data-activates="dropdown1">bits<i class="material-icons right fa fa-caret-down"></i></a></li>
+    </ul>
+  </div>
+</nav>
 <!--
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="main-header">
@@ -53,42 +60,51 @@
             </div>
         </nav>
         -->
-        <div class="container" id="main">
-            <center>
-            <label class="balance">Load Seed to Get Balance</label>
-            <div class="input-group addr-inpt-group long-input">
-                <input type="text" class="form-control" id="btcAddr" placeholder="Your Bitcoin Address">
-                <span class="input-group-btn">
-                <button class="btn btn-default" id="sweep" type="button">Sweep</button>
-                </span>
-            </div><!-- /input-group -->
-                    <div class="loading-screen invisible" ui-view>
-                            <h1 class="text-center">
-                                    <i class="fa fa-spinner fa-spin"></i> Checking Seed for funds...
-                            </h1>
+        <div id="main">
+            <div class="container">
+                <center>
+                <h2 class="header header-brand balance">Load Seed to Get Balance</h2>
+                    <div class="input-field seed-input">
+                      <input id="masterSeed" type="text" class="validate">
+                      <label for="icon_prefix">Wallet Master Seed</label>
                     </div>
-                    <div class="alert alert-danger error-screen invisible" role="alert">
-                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                <span class="sr-only">Error:</span>
-                <span class="error-message">Error</span>
-            </div>
-        </center>
-        <div class="table-responsive table-container invisible">
-                <table id="seed-info" class="table table-hover" cellspacing="0" width="100%" data-page-length='25'>
-                    <thead>
-                        <tr>
-                            <th id="col-index">#</th>
-                            <th id="col-addr">Address</th>
-                            <th id="col-uto">Spendable</th>
-                            <th id="col-prk">Private Key</th>
-                            <th id="col-toggleKeys"><button id="toggleAllKeys" class="btn btn-link">Show All Keys</button></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
+                    <button id="recover-button" class="waves-effect waves-light btn-large">Load Seed
+                        <!--<i class="material-icons">send</i>-->
+                    </button>
+                <div class="input-group addr-inpt-group long-input invisible">
+                    <input type="text" class="form-control" id="btcAddr" placeholder="Your Bitcoin Address">
+                    <span class="input-group-btn">
+                    <button class="btn btn-default" id="sweep" type="button">Sweep</button>
+                    </span>
+                </div><!-- /input-group -->
+                        <div class="loading-screen invisible" ui-view>
+                                <h1 class="text-center">
+                                        <i class="fa fa-spinner fa-spin"></i> Checking Seed for funds...
+                                </h1>
+                        </div>
+                        <div class="alert alert-danger error-screen invisible" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Error:</span>
+                    <span class="error-message">Error</span>
                 </div>
+            </center>
+            <div class="table-responsive table-container invisible">
+                    <table id="seed-info" class="table table-hover" cellspacing="0" width="100%" data-page-length='25'>
+                        <thead>
+                            <tr>
+                                <th id="col-index">#</th>
+                                <th id="col-addr">Address</th>
+                                <th id="col-uto">Spendable</th>
+                                <th id="col-prk">Private Key</th>
+                                <th id="col-toggleKeys"><button id="toggleAllKeys" class="btn btn-link">Show All Keys</button></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                    </div>
+            </div>
         </div>
         <div id="qr-code-test"></div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -99,7 +115,7 @@
         <script src="js/bitcore.js"></script>
         <script src="js/bootstrap-dialog.js"></script>
         <script type="text/javascript" src="js/jquery.qrcode.min.js"></script>
-        <script type="text/javascript" src="js/materialize.min.js"></script>
+        <script type="text/javascript" src="js/materialize.js"></script>
         <script src="index.js"></script>
 </body>
 </html>

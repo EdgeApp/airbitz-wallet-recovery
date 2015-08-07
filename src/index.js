@@ -39,6 +39,7 @@ var qrCodeIcon = getLiBx();
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
 var networkErrMessage = "Network Connection Error";
+var hideClass = "invisible"
 
 // ** Process HD Seed ** 
 
@@ -115,7 +116,7 @@ function checkAddrBlock(){
 		checkAddr(addressBlock[lastPt]);
 		setTable(lastPt);
 	}
-	$("#seed-info").removeClass("hidden"); // Show table
+	$("#seed-info").removeClass(hideClass); // Show table
 	if(used){
 		setAddresses();
 	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
@@ -215,8 +216,8 @@ function transErr(e){
 }
 
 function finishProcessingSeed(){
-	$(".table-container").removeClass("hidden");
-	$(".loading-screen").toggleClass("hidden"); // Hide
+	$(".table-container").removeClass(hideClass);
+	$(".loading-screen").toggleClass(hideClass); // Hide
 	getBalance(utos);
 	minerFee = getFee();
 	var totalToSend = (Math.round( (totalBalance - satsToBTC(minerFee)) * 100000000) / 100000000);
@@ -297,14 +298,14 @@ function createTable(){
 
 function toggleAllKeys(){
 	if(keysToggeled){
-		$(".prkText").removeClass("invisible");
+		$(".prkText").removeClass(hideClass);
 	} else {
-		$(".prkText").addClass("invisible");
+		$(".prkText").addClass(hideClass);
 	}
 }
 
 function showErrMessage(errMessage){
-	$(".error-screen").removeClass( "hidden");
+	$(".error-screen").removeClass( hideClass );
 	$(".error-message").text(errMessage);
 }
 function updateLiBxNum(){
@@ -319,8 +320,8 @@ function getLiBx(){
 $(function() {
 	//Click Handelers
 	$( "#recover-button" ).click(function() {
-		$(".loading-screen").toggleClass( "hidden"); // Show
-		$(".error-screen").addClass( "hidden"); // Hide
+		$(".loading-screen").toggleClass( hideClass); // Show
+		$(".error-screen").addClass( hideClass); // Hide
 		setTimeout(function() {
 			var input = $("#masterSeed").val();
 			try {
@@ -328,7 +329,7 @@ $(function() {
         processSeed(input);
     } catch(e) {
     	console.log(e.message);
-        $(".loading-screen").toggleClass( "hidden"); // Hide
+        $(".loading-screen").toggleClass( hideClass); // Hide
         showErrMessage(e.message);
     }
 }, 500);
@@ -343,7 +344,7 @@ $(function() {
 		$(this).text($(this).text() == hideAllKeys ? showAllKeys : hideAllKeys);
 	});
 	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
-		$(this).parent().parent().find(".prkText").toggleClass("invisible");
+		$(this).parent().parent().find(".prkText").toggleClass(hideClass);
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
 	$("#seed-info").on("click", ".qrcode-icon", function() { // On("Click") instead of .click() because element is created after the DOM has been create

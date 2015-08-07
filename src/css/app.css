@@ -1,10 +1,13 @@
+
 .navbar-brand {
     color: #FFF;
-    background-color: #2291cf;
-    font-weight: bold;
+    background-color: #2291cf;    font-weight: bold;
+}
+.header-brand {
+    color:#2291cf;
 }
 .airbitz-logo{
-    margin-top:3px;
+    margin: 3px 0 0 10px;
 }
 .navbar .navbar-nav {
     display: inline-block;
@@ -23,11 +26,6 @@
 	background-color:white;
 }
 
-#main {
-    padding-top: 80px;
-    width:1200px;
-}
-
 .main-header{
     width: 1205px;
     margin-left: auto;
@@ -38,7 +36,7 @@
     
 }
 .seed-input{
-	width: 800px;
+	width: 1000px;
 }
 .addr-inpt-group{
     width: 600px;
