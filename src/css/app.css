@@ -1,11 +1,10 @@
-
-.navbar-default {
+.navbar-brand {
     color: #FFF;
     background-color: #2291cf;
-}
-.navbar-default .navbar-brand {
-    color: #FFF;
     font-weight: bold;
+}
+.airbitz-logo{
+    margin-top:3px;
 }
 .navbar .navbar-nav {
     display: inline-block;
