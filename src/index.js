@@ -47,9 +47,15 @@ var liBxNum = 0; var qrIndx = "qrcode-";
 var liBxNam = qrIndx + liBxNum; //Lightbox name
 var qrCodeIcon = getLiBx();
 
+var errMeses = {
+	noSeed: "Please input a seed first",
+	invalidSeed: "Invalid Seed",
+	networkErr: "Network Connection Error"
+}
+/*
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
-var networkErrMessage = "Network Connection Error";
+var networkErrMessage = "Network Connection Error";*/
 var hideClass = "invisible";
 
 // ** Process HD Seed ** 
@@ -363,6 +369,7 @@ $(function() {
 			    }
 			}, 500);
 		} else {
+			Materialize.toast( errMeses.noSeed );
 			console.log("Please input your seed first.");
 		}
 	});
