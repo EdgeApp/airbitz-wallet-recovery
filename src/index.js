@@ -348,19 +348,23 @@ $(function() {
 		}
     });
 	$( "#recover-button" ).click(function() {
-		$(".loading-screen").toggleClass( hideClass); // Show
-		$(".error-screen").addClass( hideClass); // Hide
-		setTimeout(function() {
-			var input = $("#masterSeed").val();
-			try {
-        // This function can lock the UI until it starts hitting the network
-        processSeed(input);
-    } catch(e) {
-    	console.log(e.message);
-        $(".loading-screen").toggleClass( hideClass); // Hide
-        showErrMessage(e.message);
-    }
-}, 500);
+		if( !$( this ).hasClass( "disabled" ) ){
+			$(".loading-screen").toggleClass( hideClass); // Show
+			$(".error-screen").addClass( hideClass); // Hide
+			setTimeout(function() {
+				var input = $("#masterSeed").val();
+				try {
+			        // This function can lock the UI until it starts hitting the network
+			        processSeed(input);
+			    } catch(e) {
+			    	console.log(e.message);
+			        $(".loading-screen").toggleClass( hideClass); // Hide
+			        showErrMessage(e.message);
+			    }
+			}, 500);
+		} else {
+			console.log("Please input your seed first.");
+		}
 	});
 	$( "#sweep" ).click(function() {
 		var useraddr = $("#btcAddr").val();
