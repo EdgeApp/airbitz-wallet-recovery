@@ -52,7 +52,7 @@ var units = {
 		});
 		return exchangeRate;
 	},
-	setUnit: function(satsAmt){
+	convert: function(satsAmt){
 		var unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
 		var spacing = " ";
 		switch(this.selected){
@@ -73,6 +73,17 @@ var units = {
 				break;
 		}
 		return unitAmt;
+	},
+	update: function(unitToUpdate){
+		// Nav bar
+		units.selected = $(unitToUpdate).text();
+		$( ".selected" ).text(units.selected);
+		$( ".selected-unit" ).removeClass("selected-unit");
+		$( unitToUpdate ).parent().addClass("selected-unit");
+		// Body
+		var curName = "." + html.classNames.currenyUnit;
+		var sats =  $( curName ).attr("sats");
+		$( curName ).replaceWith( html.elements.curr.start(sats) + this.convert(sats) + html.elements.curr.end);
 	}
 };
 
@@ -87,14 +98,20 @@ var errMeses = {
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
-/*
-var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
-var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
-var errMeses = "Network Connection Error";*/
 var hideClass = "invisible";
+var html = {
+	classNames : {
+		currenyUnit: "curreny-unit"
+	},
+	elements : {
+		curr : { start: function(sats) {
+			return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
+		},
+		end: "</span>"}
+	}
+};
 
 // ** Process HD Seed ** 
-
 function processSeed(prs){
 	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
 	index = 0;
@@ -277,10 +294,11 @@ function finishProcessingSeed(){
 	$(".loading-screen").toggleClass(hideClass); // Hide
 	getBalance(utos);
 	minerFee = getFee();
-	console.log("Total: " + totalBalance);
-	console.log("Mine Fee:" + minerFee);
+	var currElement = html.elements.curr;
 	var totalToSend = totalBalance - minerFee;
-	$(".balance").text("Total To Send: " + " " + units.setUnit(totalToSend) + " (Transaction Fee is " + units.setUnit(minerFee) + ")" );
+	var disToSend = currElement.start(totalToSend) + units.convert(totalToSend) + currElement.end;
+	var disFee = currElement.start(minerFee) + units.convert(minerFee) + currElement.end;
+	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
 	console.log("Finished Processing Seed");
 }
 
@@ -369,18 +387,12 @@ function updateLiBxNum(){
 function getLiBx(){
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
-function updateUnit(unitToUpdate){
-	units.selected = $(unitToUpdate).text();
-	$( ".selected" ).text(units.selected);
-	$( ".selected-unit" ).removeClass("selected-unit");
-	$( unitToUpdate ).parent().addClass("selected-unit");
-}
 
 $(function() {
 	//Click Handelers
 	$( ".unit-selector" ).click(function() {
 		units.selected = $( this ).text();
-		updateUnit(this);
+		units.update(this);
 	});
 	$( "#masterSeed" ).on('input',function(e){
 		if( $(this).val() ){
