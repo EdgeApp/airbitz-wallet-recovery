@@ -29,6 +29,8 @@ var dataTable; // DataTable Object
 var unconfirmed = 0;
 var totalReceived;
 var used = true; // By default, assume addrs are used.
+var units = ["bits","satoshis""mBTC","BTC","USD"];
+var selectedUnit = "bits";
 
 var hdPrivateKey;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
