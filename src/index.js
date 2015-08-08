@@ -83,18 +83,23 @@ function processSeed(prs){
 		setAddresses();
 	}
 
-	function setAddresses(){
-		for(var x = 0;x <= blockSize ;x++){
+function setAddresses(){
+	for(var x = 0;x <= blockSize ;x++){
 		// Derive the next address.
-		derived = hdPrivateKey.derive("m/0/0/" + index.toString());
-		address = derived.privateKey.toAddress();
+		var nextPrk = getNextPrk();
+		address = nextPrk.toAddress();
 		if(index == 0){ firstSeedAddr = address.toString(); }
-		privKeySet.push(derived.privateKey.toWIF());
+		privKeySet.push(nextPrk.toWIF());
 		addressBlock.push(address.toString());
 		
 		index++;
 	}
 	setUTXOs(addressBlock);
+}
+function getNextPrk(){
+	derived = hdPrivateKey.derive("m/0/0/" + index.toString());
+	var nextPrk = derived.privateKey;
+	return nextPrk
 }
 
 function checkSeed(){
