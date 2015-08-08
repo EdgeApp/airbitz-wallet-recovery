@@ -53,8 +53,11 @@
 .invisible{
 	visibility: hidden;
 }
-.selected-unit, .addr-input{
+.gone, .selected-unit, .addr-input{
     display:none;
+}
+.done{
+    color:green;
 }
 
 .error-screen{

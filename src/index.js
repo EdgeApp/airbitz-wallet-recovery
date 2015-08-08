@@ -101,7 +101,9 @@ var errMeses = {
 var hideClass = "invisible";
 var html = {
 	classNames : {
-		currenyUnit: "curreny-unit"
+		currenyUnit: "curreny-unit",
+		noDisplay: "gone",
+		checkMark: "done"
 	},
 	elements : {
 		curr : { start: function(sats) {
@@ -110,6 +112,7 @@ var html = {
 		end: "</span>"}
 	}
 };
+var classNames = html.classNames;
 
 // ** Process HD Seed ** 
 function processSeed(prs){
@@ -290,8 +293,11 @@ function transErr(e){
 }
 
 function finishProcessingSeed(){
-	$(".table-container").removeClass(hideClass);
-	$(".loading-screen").toggleClass(hideClass); // Hide
+	$(".loading-screen").addClass(hideClass); // Hide
+	$( "." + classNames.checkMark ).fadeIn(2000, function(){
+		$( this ).fadeOut();
+		$(".table-container").removeClass(hideClass);
+	});
 	getBalance(utos);
 	minerFee = getFee();
 	var currElement = html.elements.curr;
@@ -403,8 +409,9 @@ $(function() {
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
-			$(".loading-screen").toggleClass( hideClass); // Show
-			$(".error-screen").addClass( hideClass); // Hide
+			$(".balance").text("Checking seed...")
+			$(".seed-form").addClass( classNames.noDisplay );
+			$(".loading-screen").removeClass( classNames.noDisplay ); // Show
 			setTimeout(function() {
 				var input = $("#masterSeed").val();
 				try {
