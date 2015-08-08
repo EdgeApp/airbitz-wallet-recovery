@@ -85,7 +85,6 @@ function processSeed(prs){
 
 function setAddresses(){
 	for(var x = 0;x <= blockSize ;x++){
-		// Derive the next address.
 		var nextPrk = getNextPrk();
 		address = nextPrk.toAddress();
 		if(index == 0){ firstSeedAddr = address.toString(); }
@@ -97,6 +96,7 @@ function setAddresses(){
 	setUTXOs(addressBlock);
 }
 function getNextPrk(){
+	// Derive the next address.
 	derived = hdPrivateKey.derive("m/0/0/" + index.toString());
 	var nextPrk = derived.privateKey;
 	return nextPrk
@@ -113,7 +113,7 @@ function setUTXOs(arrayOfAddresses){
 		checkAddrBlock();
 	})
 	.fail(function() {
-		showErrMessage(networkErrMessage);	
+		showErrMessage(networkErrMessage);
 	});
 }
 function getBlockAddresses(arrayOfAddresses){
@@ -326,9 +326,11 @@ function toggleAllKeys(){
 	}
 }
 
-function showErrMessage(errMessage){
-	$(".error-screen").removeClass( hideClass );
-	$(".error-message").text(errMessage);
+function showErrMessage(errMessage,duration){
+	if(!duration){
+		duration = 3000; // By default, wait 3 secs.
+	}
+	Materialize.toast(errMessage,duration);
 }
 function updateLiBxNum(){
 	liBxNum++;
@@ -368,13 +370,13 @@ $(function() {
 			        // This function can lock the UI until it starts hitting the network
 			        processSeed(input);
 			    } catch(e) {
-			    	console.log(e.message);
-			        $(".loading-screen").toggleClass( hideClass); // Hide
-			        showErrMessage(e.message);
+			    	console.log( e.message );
+			        $(".loading-screen").toggleClass( hideClass ); // Hide
+			        showErrMessage( errMeses.invalidSeed );
 			    }
 			}, 500);
 		} else {
-			Materialize.toast( errMeses.noSeed );
+			showErrMessage( errMeses.noSeed );
 			console.log("Please input your seed first.");
 		}
 	});
