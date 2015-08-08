@@ -51,6 +51,9 @@
 .invisible{
 	visibility: hidden;
 }
+.selected-unit{
+    display:none;
+}
 
 .error-screen{
 	margin-top:10px;

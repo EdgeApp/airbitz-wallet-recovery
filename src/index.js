@@ -29,7 +29,16 @@ var dataTable; // DataTable Object
 var unconfirmed = 0;
 var totalReceived;
 var used = true; // By default, assume addrs are used.
-var units = ["bits","satoshis""mBTC","BTC","USD"];
+var units = {
+	satoshis:"/1",
+	bits:"/100",
+	mBTC:"/100000",
+	BTC:"100000000",
+	USD: function getPrice(){
+		// TODO Fetch price
+		var lastPrice = 280;
+		return lastPrice;
+	}};
 var selectedUnit = "bits";
 
 var hdPrivateKey;
@@ -41,7 +50,7 @@ var qrCodeIcon = getLiBx();
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
 var networkErrMessage = "Network Connection Error";
-var hideClass = "invisible"
+var hideClass = "invisible";
 
 // ** Process HD Seed ** 
 
@@ -318,9 +327,19 @@ function updateLiBxNum(){
 function getLiBx(){
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
+function updateUnit(unitToUpdate){
+	selectedUnit = $(unitToUpdate).text();
+	$( ".selected" ).text(selectedUnit);
+	$( ".selected-unit" ).removeClass("selected-unit");
+	$( unitToUpdate ).parent().addClass("selected-unit");
+}
 
 $(function() {
 	//Click Handelers
+	$( ".unit-selector" ).click(function() {
+		selectedUnit = $( this ).text();
+		updateUnit(this);
+	});
 	$( "#recover-button" ).click(function() {
 		$(".loading-screen").toggleClass( hideClass); // Show
 		$(".error-screen").addClass( hideClass); // Hide
@@ -336,20 +355,20 @@ $(function() {
     }
 }, 500);
 	});
-	$("#sweep").click(function() {
+	$( "#sweep" ).click(function() {
 		var useraddr = $("#btcAddr").val();
 		sweepFunds(useraddr);
 	});
-	$("#seed-info").on( "click", "#toggleAllKeys", function() {
+	$( "#seed-info" ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
 		toggleAllKeys();
 		$(this).text($(this).text() == hideAllKeys ? showAllKeys : hideAllKeys);
 	});
-	$("#seed-info").on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
+	$( "#seed-info" ).on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
 		$(this).parent().parent().find(".prkText").toggleClass(hideClass);
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
-	$("#seed-info").on("click", ".qrcode-icon", function() { // On("Click") instead of .click() because element is created after the DOM has been create
+	$( "#seed-info" ).on("click", ".qrcode-icon", function() {
 		console.log("Let there be light");
 		var thisCode = ($(this).children().attr("class")).replace(" ", ".");
 		var qrCodeText = $(this).parent().text();
@@ -363,6 +382,5 @@ $(function() {
         });
 		thisCode = thisCode.replace(".", " ");
 		$(this).append("<div class=\"" + thisCode + "\"></div>");
-		
 	});
 });
