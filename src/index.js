@@ -18,7 +18,7 @@ var keysToggeled = false; //All keys toggeled.
 var address;
 var firstSeedAddr;
 var derived;
-var minerFee = 0.0005;
+var minerFee = 10000;
 var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
@@ -98,12 +98,12 @@ var errMeses = {
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
-var hideClass = "invisible";
 var html = {
 	classNames : {
 		currenyUnit: "curreny-unit",
 		noDisplay: "gone",
-		checkMark: "done"
+		checkMark: "done",
+		hide: "invisible"
 	},
 	elements : {
 		curr : { start: function(sats) {
@@ -113,6 +113,7 @@ var html = {
 	}
 };
 var classNames = html.classNames;
+var hideClass = classNames.hide;
 
 // ** Process HD Seed ** 
 function processSeed(prs){
@@ -296,7 +297,7 @@ function finishProcessingSeed(){
 	$(".loading-screen").addClass(hideClass); // Hide
 	$( "." + classNames.checkMark ).fadeIn(2000, function(){
 		$( this ).fadeOut();
-		$(".table-container").removeClass(hideClass);
+		$(".table-container").removeClass( classNames.noDisplay );
 	});
 	getBalance(utos);
 	minerFee = getFee();
