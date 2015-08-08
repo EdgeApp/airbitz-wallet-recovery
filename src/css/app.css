@@ -53,7 +53,7 @@
 .invisible{
 	visibility: hidden;
 }
-.selected-unit{
+.selected-unit, .addr-input{
     display:none;
 }
 

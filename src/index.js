@@ -21,7 +21,7 @@ var derived;
 var minerFee = 0.0005;
 var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
-var blockSize = 200; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
+var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedData = []; // For the table
 var dataTable; // DataTable Object
 
@@ -31,6 +31,7 @@ var totalReceived;
 var exchangeRate = 300;
 var used = true; // By default, assume addrs are used.
 var units = {
+	names: ["satoshis","bits","mBTC","BTC","USD"],
 	selected:"bits",
 	satoshis:"/1",
 	bits:"/100",
@@ -40,24 +41,28 @@ var units = {
 		// TODO Fetch price
 		exchangeRate = $.get("https://api.coinbase.com/v2/prices/buy", function( data ){
 			console.log(exchangeRate);
+		})
+		.fail(function() {
+			showErrMessage(errMeses.networkErr);
 		});
 		return exchangeRate;
 	},
 	setUnit: function(satsAmt){
 		var unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
+		var spacing = " ";
 		switch(this.selected){
 			case "bits":
-				unitAmt = unitAmt.bits;
+				unitAmt = unitAmt.bits + spacing + this.names[1];
 				break;
 			case "mBTC":
-				unitAmt = unitAmt.mBTC;
+				unitAmt = unitAmt.mBTC + spacing + this.names[2];
 				break;
 			case "BTC":
-				unitAmt = unitAmt.BTC;
+				unitAmt = unitAmt.BTC + spacing + this.names[3];
 				break;
 			case "USD":
 				this.USD();
-				unitAmt = unitAmt.to(exchangeRate);
+				unitAmt = unitAmt.to(exchangeRate) + spacing + this.names[4];
 				break;
 			default:
 				break;
@@ -270,7 +275,7 @@ function finishProcessingSeed(){
 	console.log("Total: " + totalBalance);
 	console.log("Mine Fee:" + minerFee);
 	var totalToSend = totalBalance - minerFee;
-	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + minerFee + ")" );
+	$(".balance").text("Total To Send: " + " " + units.setUnit(totalToSend) + " (Transaction Fee is " + units.setUnit(minerFee) + ")" );
 	console.log("Finished Processing Seed");
 }
 
