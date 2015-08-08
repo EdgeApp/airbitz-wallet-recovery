@@ -340,6 +340,13 @@ $(function() {
 		selectedUnit = $( this ).text();
 		updateUnit(this);
 	});
+	$( "#masterSeed" ).on('input',function(e){
+		if( $(this).val() ){
+			$( "#recover-button" ).attr("class","btn btn-large waves-effect waves-light");
+		} else{
+			$( "#recover-button" ).attr("class","btn btn-large disabled");
+		}
+    });
 	$( "#recover-button" ).click(function() {
 		$(".loading-screen").toggleClass( hideClass); // Show
 		$(".error-screen").addClass( hideClass); // Hide
