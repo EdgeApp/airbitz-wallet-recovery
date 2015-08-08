@@ -28,18 +28,43 @@ var dataTable; // DataTable Object
 // Per address
 var unconfirmed = 0;
 var totalReceived;
+var exchangeRate = 300;
 var used = true; // By default, assume addrs are used.
 var units = {
+	selected:"bits",
 	satoshis:"/1",
 	bits:"/100",
 	mBTC:"/100000",
 	BTC:"100000000",
-	USD: function getPrice(){
+	USD: function(){
 		// TODO Fetch price
-		var lastPrice = 280;
-		return lastPrice;
-	}};
-var selectedUnit = "bits";
+		exchangeRate = $.get("https://api.coinbase.com/v2/prices/buy", function( data ){
+			console.log(exchangeRate);
+		});
+		return exchangeRate;
+	},
+	setUnit: function(satsAmt){
+		var unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
+		switch(this.selected){
+			case "bits":
+				unitAmt = unitAmt.bits;
+				break;
+			case "mBTC":
+				unitAmt = unitAmt.mBTC;
+				break;
+			case "BTC":
+				unitAmt = unitAmt.BTC;
+				break;
+			case "USD":
+				this.USD();
+				unitAmt = unitAmt.to(exchangeRate);
+				break;
+			default:
+				break;
+		}
+		return unitAmt;
+	}
+};
 
 var hdPrivateKey;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
@@ -55,7 +80,7 @@ var errMeses = {
 /*
 var empty = "Invalid entropy: must be an hexa string or binary buffer, got ", emptyResponse = "No Seed";
 var invalidSeed = "Invalid entropy: at least 128 bits needed, got \"�\"", invalidResponse = "Invalid Seed";
-var networkErrMessage = "Network Connection Error";*/
+var errMeses = "Network Connection Error";*/
 var hideClass = "invisible";
 
 // ** Process HD Seed ** 
@@ -113,7 +138,7 @@ function setUTXOs(arrayOfAddresses){
 		checkAddrBlock();
 	})
 	.fail(function() {
-		showErrMessage(networkErrMessage);
+		showErrMessage(errMeses.networkErr);
 	});
 }
 function getBlockAddresses(arrayOfAddresses){
@@ -202,7 +227,7 @@ function checkAddr(addr){
 		}
 	})
 	.fail(function() {
-		showErrMessage(networkErrMessage);
+		showErrMessage(errMeses.networkErr);
 	});
 }
 
@@ -212,7 +237,7 @@ function setUnconfirmed(addr){
 		checkIfUsed();
 	})
 	.fail(function() {
-		showErrMessage(networkErrMessage);	
+		showErrMessage(errMeses.networkErr);	
 	});
 }
 
@@ -242,14 +267,16 @@ function finishProcessingSeed(){
 	$(".loading-screen").toggleClass(hideClass); // Hide
 	getBalance(utos);
 	minerFee = getFee();
-	var totalToSend = (Math.round( (totalBalance - satsToBTC(minerFee)) * 100000000) / 100000000);
-	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + satsToBTC(minerFee) + ")" );
+	console.log("Total: " + totalBalance);
+	console.log("Mine Fee:" + minerFee);
+	var totalToSend = totalBalance - minerFee;
+	$(".balance").text("Total To Send: " + bitcoinB + " " + totalToSend + " (Transaction Fee is " + minerFee + ")" );
 	console.log("Finished Processing Seed");
 }
 
 function getBalance(arrayOfUtos){
 	for(x in arrayOfUtos){
-		totalBalance += arrayOfUtos[x].amount;
+		totalBalance += btcToSats(arrayOfUtos[x].amount);
 	}
 	return totalBalance;
 }
@@ -266,7 +293,7 @@ function sweepFunds(toBTCAddr){
 function getFee(){
 	var transaction = new bitcore.Transaction()
 	.from(utos)          
-	.to(firstSeedAddr, btcToSats(totalBalance));
+	.to(firstSeedAddr, totalBalance);
 
 	return transaction._estimateFee();
 }
@@ -274,7 +301,7 @@ function getFee(){
 function createTransaction(addr){
 	transaction = new bitcore.Transaction()
 	.from(utos)
-	.to(addr, (btcToSats(totalBalance) - minerFee))
+	.to(addr, (totalBalance - minerFee))
 	.fee(minerFee)
 	.sign(privKeySet);
 
@@ -297,14 +324,6 @@ function broadcastTx(tx){
 
 function btcToSats(btcAmt){
 	return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
-}
-
-function btcToBits(btcAmt){
-	return (btcAmt * 1000000);
-}
-
-function satsToBTC(satsAmt){
-	return bitcore.Unit.fromSatoshis(satsAmt).toBTC();
 }
 
 function createTable(){
@@ -341,8 +360,8 @@ function getLiBx(){
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
 function updateUnit(unitToUpdate){
-	selectedUnit = $(unitToUpdate).text();
-	$( ".selected" ).text(selectedUnit);
+	units.selected = $(unitToUpdate).text();
+	$( ".selected" ).text(units.selected);
 	$( ".selected-unit" ).removeClass("selected-unit");
 	$( unitToUpdate ).parent().addClass("selected-unit");
 }
@@ -350,7 +369,7 @@ function updateUnit(unitToUpdate){
 $(function() {
 	//Click Handelers
 	$( ".unit-selector" ).click(function() {
-		selectedUnit = $( this ).text();
+		units.selected = $( this ).text();
 		updateUnit(this);
 	});
 	$( "#masterSeed" ).on('input',function(e){

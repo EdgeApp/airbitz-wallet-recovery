@@ -1,9 +1,11 @@
 
 .navbar-brand {
     color: #FFF;
-    background-color: #2291cf;    font-weight: bold;
+    background-color: #2291cf;
+    font-weight: bold;
 }
 .header-brand {
+    font-weight: 300;
     color:#2291cf;
 }
 .airbitz-logo{
@@ -57,10 +59,6 @@
 
 .error-screen{
 	margin-top:10px;
-}
-
-.table-container{
-padding-top:20px;
 }
 
 
