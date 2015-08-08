@@ -39,11 +39,16 @@ var units = {
 	BTC:"100000000",
 	USD: function(){
 		// TODO Fetch price
-		exchangeRate = $.get("https://api.coinbase.com/v2/prices/buy", function( data ){
-			console.log(exchangeRate);
-		})
-		.fail(function() {
+		 $.ajax({
+		 	url: "https://api.coinbase.com/v2/prices/buy?currency=USD", 
+		 	type: "GET",
+		 	crossDomain: true,
+		 	success: function( data ){
+				exchangeRate = data.amount;
+			},
+			error: function() {
 			showErrMessage(errMeses.networkErr);
+			}
 		});
 		return exchangeRate;
 	},
