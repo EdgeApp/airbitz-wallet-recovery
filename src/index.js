@@ -96,6 +96,7 @@ var qrCodeIcon = getLiBx();
 
 var errMeses = {
 	noSeed: "Please input a seed first",
+	noAddr: "Please input your address",
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
@@ -103,14 +104,24 @@ var html = {
 	show : function(selector) {
 		$( selector ).removeClass( classNames.noDisplay );
 	},
-	hide : function(selector){
+	hide : function(selector) {
 		$( selector ).addClass( classNames.noDisplay );
+	},
+	enableInput : function(input,button) {
+		if( $( input ).val() ){
+			$( button ).attr("class","btn btn-large waves-effect waves-light");
+		} else {
+			$( button ).attr("class","btn btn-large disabled");
+		}
 	},
 	display : {
 		head: "Load Seed to Get Balance"
 	},
 	idNames : {
-		userSeed: "masterSeed"
+		userSeed: "masterSeed",
+		load: "recover-button",
+		sweep: "sweep-funds",
+		userAddr: "btcAddr"
 	},
 	classNames : {
 		head: "balance",
@@ -142,7 +153,7 @@ var html = {
 		this.show( "." + classNames.seed );
 	}
 };
-var classNames = html.classNames;
+var classNames = html.classNames, idNames = html.idNames;
 var hideClass = classNames.hide;
 var currElement = html.elements.curr;
 
@@ -431,17 +442,16 @@ function getLiBx(){
 }
 
 $(function() {
-	//Click Handelers
+	//Handelers
 	$( ".unit-selector" ).click(function() {
 		units.selected = $( this ).text();
 		units.update(this);
 	});
-	$( "#masterSeed" ).on('input',function(e){
-		if( $(this).val() ){
-			$( "#recover-button" ).attr("class","btn btn-large waves-effect waves-light");
-		} else{
-			$( "#recover-button" ).attr("class","btn btn-large disabled");
-		}
+	$( "#" + idNames.userSeed ).on('input',function(e){
+		html.enableInput(this, "#" + idNames.load );
+    });
+    $( "#" + idNames.userAddr ).on('input',function(e){
+    	html.enableInput(this, "#" + idNames.sweep );
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
@@ -469,9 +479,13 @@ $(function() {
 	$( "." + classNames.reset ).click(function() {
 		html.newSeed();
 	});
-	$( "#sweep" ).click(function() {
-		var useraddr = $("#btcAddr").val();
-		sweepFunds(useraddr);
+	$( "#sweep-funds" ).click(function() {
+		if( !$( this ).hasClass( "disabled" ) ){
+			var useraddr = $("#btcAddr").val();
+			sweepFunds(useraddr);
+		} else {
+			showErrMessage( errMeses.noAddr );
+		}
 	});
 	$( "#seed-info" ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
