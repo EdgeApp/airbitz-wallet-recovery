@@ -81,9 +81,10 @@ var units = {
 		$( ".selected-unit" ).removeClass("selected-unit");
 		$( unitToUpdate ).parent().addClass("selected-unit");
 		// Body
-		var curName = "." + html.classNames.currenyUnit;
-		var sats =  $( curName ).attr("sats");
-		$( curName ).replaceWith( html.elements.curr.start(sats) + this.convert(sats) + html.elements.curr.end);
+		var curName = "." + classNames.currenyUnit;
+		$( curName ).each( function() {
+			$( this ).replaceWith( currElement.set( $( this ).attr("sats") ));
+		});
 	}
 };
 
@@ -106,14 +107,20 @@ var html = {
 		hide: "invisible"
 	},
 	elements : {
-		curr : { start: function(sats) {
-			return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
-		},
-		end: "</span>"}
+		curr : { 
+			start: function(sats) {
+				return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
+			},
+			end: "</span>",
+			set: function (sats) {
+				return this.start(sats) + units.convert(sats) + this.end;
+			}
+		}
 	}
 };
 var classNames = html.classNames;
 var hideClass = classNames.hide;
+var currElement = html.elements.curr;
 
 // ** Process HD Seed ** 
 function processSeed(prs){
@@ -210,13 +217,15 @@ function setTable(tableIndex){
 	var order = matchAddress();
 	var addrLink = "<a target=\"0\" href=\"" + insightAddr + addressBlock[tableIndex] + "\">";
 	var link2 = "</a>";
-	var tableAddr = (qrCodeIcon + (addrLink + addressBlock[tableIndex] + link2) )
+	var tableAddr = (qrCodeIcon + (addrLink + addressBlock[tableIndex] + link2) );
 	updateLiBxNum();
 
 	var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + privKeySet[tableIndex] + "</span>");
 	
 	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
-	else{ spendable = utos[order.indexOf(tableIndex)].amount; }
+	else {
+		spendable = currElement.set(utos[order.indexOf(tableIndex)].amount);
+	}
 	
 	if(spendable > 0){ hasFunds = true; }
 
@@ -304,11 +313,9 @@ function finishProcessingSeed(){
 	});
 	getBalance(utos);
 	minerFee = getFee();
-	var currElement = html.elements.curr;
 	var totalToSend = totalBalance - minerFee;
-	console.log(totalToSend);
-	var disToSend = currElement.start(totalToSend) + units.convert(totalToSend) + currElement.end;
-	var disFee = currElement.start(minerFee) + units.convert(minerFee) + currElement.end;
+	var disToSend = currElement.set(totalToSend);
+	var disFee = currElement.set(minerFee);
 	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
 	console.log("Finished Processing Seed");
 }
@@ -354,7 +361,7 @@ function broadcastTx(tx){
 		} else {
 			// Mark the transaction as broadcasted
 			console.log("Transaction sent: " + returnedTxId);
-			alert("Transaction sent: " + returnedTxId);
+			Materialize.toast("Transaction sent: " + returnedTxId,5000);
 			return returnedTxId;
 		}
 	})
