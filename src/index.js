@@ -30,13 +30,38 @@ var unconfirmed = 0;
 var totalReceived;
 var exchangeRate = 300;
 var used = true; // By default, assume addrs are used.
+var tran = {
+	create : function(addr) {
+		console.log(totalBalance);
+		console.log(minerFee);
+		tran = new bitcore.Transaction()
+		.from(utos)
+		.to(addr, (totalBalance - minerFee))
+		.fee(minerFee)
+		.sign(privKeySet);
+
+		console.log(tran);
+
+		return tran;
+	},
+	sign : function(tran) {
+
+	},
+	getFee : function() {
+		var tran = new bitcore.Transaction()
+		.from(utos)          
+		.to(firstSeedAddr, totalBalance);
+
+		return tran._estimateFee();
+	}
+}
 var units = {
 	names: ["satoshis","bits","mBTC","BTC","USD"],
 	selected:"bits",
 	satoshis:"/1",
 	bits:"/100",
 	mBTC:"/100000",
-	BTC:"100000000",
+	BTC:"/100000000",
 	USD: function(){
 		// TODO Fetch price
 		 $.ajax({
@@ -347,7 +372,7 @@ function finishProcessingSeed(){
 		$(".table-container").removeClass( classNames.noDisplay );
 	});
 	getBalance(utos);
-	minerFee = getFee();
+	minerFee = tran.getFee();
 	var totalToSend = totalBalance - minerFee;
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
@@ -364,29 +389,11 @@ function getBalance(arrayOfUtos){
 }
 
 // ** SWEEP FUNDS ** 
-function sweepFunds(toBTCAddr){
+function sweepFunds(addr){
 	console.log("Start Sweep");
 	var txID = "No ID";
-	var transaction = createTransaction(toBTCAddr);
+	var transaction = tran.create(addr);
 	txID = broadcastTx(transaction);
-}
-
-function getFee(){
-	var transaction = new bitcore.Transaction()
-	.from(utos)          
-	.to(firstSeedAddr, totalBalance);
-
-	return transaction._estimateFee();
-}
-
-function createTransaction(addr){
-	transaction = new bitcore.Transaction()
-	.from(utos)
-	.to(addr, (totalBalance - minerFee))
-	.fee(minerFee)
-	.sign(privKeySet);
-
-	return transaction;
 }
 
 function broadcastTx(tx){

@@ -8255,9 +8255,10 @@ Transaction.prototype.uncheckedSerialize = Transaction.prototype.toString = func
 Transaction.prototype.checkedSerialize = function() {
   var feeError = this._validateFees();
   var missingChange = this._missingChange();
+  /*
   if (feeError && missingChange) {
     throw new errors.Transaction.ChangeAddressMissing();
-  }
+  }*/
   if (feeError && !missingChange) {
     throw new errors.Transaction.FeeError(feeError);
   }
