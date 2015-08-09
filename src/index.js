@@ -100,16 +100,31 @@ var errMeses = {
 	networkErr: "Network Connection Error"
 }
 var html = {
-
+	show : function(selector) {
+		$( selector ).removeClass( classNames.noDisplay );
+	},
+	hide : function(selector){
+		$( selector ).addClass( classNames.noDisplay );
+	},
+	display : {
+		head: "Load Seed to Get Balance"
+	},
+	idNames : {
+		userSeed: "masterSeed"
+	},
 	classNames : {
+		head: "balance",
 		currenyUnit: "curreny-unit",
 		noDisplay: "gone",
 		checkMark: "done",
 		hide: "invisible",
-		sweep: "sweep-form"
+		seed: "seed-form",
+		sweep: "sweep-form",
+		info: "seed-info",
+		reset: "new-seed"
 	},
 	elements : {
-		curr : { 
+		curr : {
 			start: function(sats) {
 				return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
 			},
@@ -117,12 +132,14 @@ var html = {
 			set: function (sats) {
 				return this.start(sats) + units.convert(sats) + this.end;
 			}
-		},
-		sweepForm: {
-			showSweep: function(){
-				$( "." + classNames.sweep ).removeClass( classNames.noDisplay );
-			}
 		}
+	},
+	newSeed: function() {
+		this.hide( "." + classNames.sweep );
+		this.hide( "." + classNames.info );
+		$( "." + classNames.head ).text(this.display.head);
+		$( "#" + this.idNames.userSeed ).val("");
+		this.show( "." + classNames.seed );
 	}
 };
 var classNames = html.classNames;
@@ -313,7 +330,7 @@ function transErr(e){
 }
 
 function finishProcessingSeed(){
-	$(".loading-screen").addClass(hideClass); // Hide
+	$(".loading-screen").addClass( classNames.noDisplay ); // Hide
 	$( "." + classNames.checkMark ).fadeIn(2000, function(){
 		$( this ).fadeOut();
 		$(".table-container").removeClass( classNames.noDisplay );
@@ -324,7 +341,7 @@ function finishProcessingSeed(){
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
 	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
-	html.elements.sweepForm.showSweep();
+	html.show( "." + classNames.sweep );
 	console.log("Finished Processing Seed");
 }
 
@@ -448,6 +465,9 @@ $(function() {
 			showErrMessage( errMeses.noSeed );
 			console.log("Please input your seed first.");
 		}
+	});
+	$( "." + classNames.reset ).click(function() {
+		html.newSeed();
 	});
 	$( "#sweep" ).click(function() {
 		var useraddr = $("#btcAddr").val();
