@@ -410,7 +410,7 @@ $(function() {
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
-			$(".balance").text("Checking seed...")
+			$(".balance").text("Checking seed...");
 			$(".seed-form").addClass( classNames.noDisplay );
 			$(".loading-screen").removeClass( classNames.noDisplay ); // Show
 			setTimeout(function() {
@@ -420,7 +420,9 @@ $(function() {
 			        processSeed(input);
 			    } catch(e) {
 			    	console.log( e.message );
-			        $(".loading-screen").toggleClass( hideClass ); // Hide
+			        $(".loading-screen").addClass( classNames.noDisplay ); // Hide
+			        $(".balance").text("Load Seed to Get Balance");
+			        $(".seed-form").removeClass( classNames.noDisplay );
 			        showErrMessage( errMeses.invalidSeed );
 			    }
 			}, 500);
