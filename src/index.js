@@ -100,11 +100,13 @@ var errMeses = {
 	networkErr: "Network Connection Error"
 }
 var html = {
+
 	classNames : {
 		currenyUnit: "curreny-unit",
 		noDisplay: "gone",
 		checkMark: "done",
-		hide: "invisible"
+		hide: "invisible",
+		sweep: "sweep-form"
 	},
 	elements : {
 		curr : { 
@@ -114,6 +116,11 @@ var html = {
 			end: "</span>",
 			set: function (sats) {
 				return this.start(sats) + units.convert(sats) + this.end;
+			}
+		},
+		sweepForm: {
+			showSweep: function(){
+				$( "." + classNames.sweep ).removeClass( classNames.noDisplay );
 			}
 		}
 	}
@@ -317,6 +324,7 @@ function finishProcessingSeed(){
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
 	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
+	html.elements.sweepForm.showSweep();
 	console.log("Finished Processing Seed");
 }
 

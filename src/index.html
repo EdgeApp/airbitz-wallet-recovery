@@ -38,7 +38,7 @@
             <center>
                 <h2 class="header header-brand balance">Load Seed to Get Balance</h2>
                 <div class="seed-form">
-                    <div class="input-field seed-input">
+                    <div class="input-field long-input">
                       <input id="masterSeed" type="text" class="validate">
                       <label for="icon_prefix">Wallet Master Seed</label>
                     </div>
@@ -49,6 +49,14 @@
                         <button class="btn btn-default" id="sweep" type="button">Sweep</button>
                         </span>
                     </div><!-- /input-group -->
+                </div>
+                <div class="sweep-form gone">
+                    <div class="input-field long-input">
+                      <input id="btcAddr" type="text" class="validate">
+                      <label for="icon_prefix">Bitcoin Address</label>
+                    </div>
+                    <a id="new-seed" class="btn btn-large waves-effect waves-light">Load New Seed<i class="material-icons right">replay</i></a>
+                    <a id="sweep" class="btn btn-large disabled">Sweep Funds<i class="material-icons right">play_arrow</i></a>
                 </div>
                 <div class="preloader-wrapper big active loading-screen gone">
                    <div class="spinner-layer spinner-blue-only">

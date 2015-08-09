@@ -35,10 +35,10 @@
     padding-left: 114px;
 }
 .long-input{
-    
+    width: 900px;
 }
-.seed-input{
-	width: 900px;
+#new-seed{
+	margin-right: 20px;
 }
 .addr-inpt-group{
     width: 600px;
