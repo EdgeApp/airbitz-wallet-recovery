@@ -181,6 +181,7 @@ function getBlockAddresses(arrayOfAddresses){
 }
 function extractUTOs(data){
 	for(x in data){
+		data[x].amount = btcToSats(data[x].amount); // Set amount to satoshis
 		utos.push(data[x]);
 	}
 }
@@ -199,7 +200,7 @@ function checkAddrBlock(){
 		setAddresses();
 	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
 	finishProcessingSeed();
-}
+	}
 }
 
 function setTable(tableIndex){
@@ -234,9 +235,11 @@ function matchAddress(){
 	});
 	return addressLocation;
 }
+
 function clearTable(){
 	$("#seed-info").children("tbody").children("tr").remove(); 
 }
+
 function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
@@ -303,6 +306,7 @@ function finishProcessingSeed(){
 	minerFee = getFee();
 	var currElement = html.elements.curr;
 	var totalToSend = totalBalance - minerFee;
+	console.log(totalToSend);
 	var disToSend = currElement.start(totalToSend) + units.convert(totalToSend) + currElement.end;
 	var disFee = currElement.start(minerFee) + units.convert(minerFee) + currElement.end;
 	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
@@ -311,13 +315,12 @@ function finishProcessingSeed(){
 
 function getBalance(arrayOfUtos){
 	for(x in arrayOfUtos){
-		totalBalance += btcToSats(arrayOfUtos[x].amount);
+		totalBalance += arrayOfUtos[x].amount;
 	}
 	return totalBalance;
 }
 
 // ** SWEEP FUNDS ** 
-
 function sweepFunds(toBTCAddr){
 	console.log("Start Sweep");
 	var txID = "No ID";
