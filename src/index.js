@@ -32,15 +32,11 @@ var exchangeRate = 300;
 var used = true; // By default, assume addrs are used.
 var tran = {
 	create : function(addr) {
-		console.log(totalBalance);
-		console.log(minerFee);
 		tran = new bitcore.Transaction()
 		.from(utos)
 		.to(addr, (totalBalance - minerFee))
 		.fee(minerFee)
 		.sign(privKeySet);
-
-		console.log(tran);
 
 		return tran;
 	},
@@ -49,7 +45,7 @@ var tran = {
 	},
 	getFee : function() {
 		var tran = new bitcore.Transaction()
-		.from(utos)          
+		.from(utos)
 		.to(firstSeedAddr, totalBalance);
 
 		return tran._estimateFee();
@@ -155,6 +151,7 @@ var html = {
 		checkMark: "done",
 		hide: "invisible",
 		seed: "seed-form",
+		hasFunds: "has-funds",
 		sweep: "sweep-form",
 		info: "seed-info",
 		reset: "new-seed"
@@ -315,7 +312,8 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	dataTable.row.add(seedData[seedIndex]).draw();
 	
 	if(hasFunds){
-		dataTable.row(seedIndex).nodes().to$().addClass('success');
+		console.log( "Table add: " + dataTable.row(seedIndex).nodes().to$() );
+		dataTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
 	}
 }
 
@@ -372,7 +370,9 @@ function finishProcessingSeed(){
 		$(".table-container").removeClass( classNames.noDisplay );
 	});
 	getBalance(utos);
+	console.log(minerFee);
 	minerFee = tran.getFee();
+	console.log(minerFee);
 	var totalToSend = totalBalance - minerFee;
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
@@ -419,6 +419,8 @@ function createTable(){
 	dataTable = $("#seed-info").DataTable(
 	{
 		paging: true,
+		searching: false, // No built-in search bar. Make custom
+		bLengthChange: false, // No "Show entries dropdown"
 		"fnDrawCallback": function( oSettings ) {
 			toggleAllKeys();
 		}

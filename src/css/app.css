@@ -35,13 +35,10 @@
     padding-left: 114px;
 }
 .long-input{
-    width: 900px;
+    width: 50%;
 }
 .new-seed{
 	margin-right: 20px;
-}
-.addr-inpt-group{
-    width: 600px;
 }
 
 .modal {
