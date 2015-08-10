@@ -141,6 +141,7 @@ var html = {
 	},
 	idNames : {
 		userSeed: "masterSeed",
+		seedInfo: "seed-info",
 		load: "recover-button",
 		sweep: "sweep-funds",
 		userAddr: "btcAddr"
@@ -167,6 +168,15 @@ var html = {
 			set: function (sats) {
 				return this.start(sats) + units.convert(sats) + this.end;
 			}
+		},
+		table : {
+			//seedInfo: 
+			search: function(query) {
+				this.fnFilter(query);
+			},
+			clear: function(table) {
+				$(table).children("tbody").children("tr").remove();
+			}
 		}
 	},
 	newSeed: function() {
@@ -179,7 +189,8 @@ var html = {
 };
 var classNames = html.classNames, idNames = html.idNames;
 var hideClass = classNames.hide;
-var currElement = html.elements.curr;
+var docElements = html.elements;
+var currElement = docElements.curr;
 
 // ** Process HD Seed ** 
 function processSeed(prs){
@@ -302,10 +313,6 @@ function matchAddress(){
 		return addressBlock.indexOf(n.address);
 	});
 	return addressLocation;
-}
-
-function clearTable(){
-	$("#seed-info").children("tbody").children("tr").remove(); 
 }
 
 function updateTable(seedIndex,address,amount,privateKey,hasFunds){
