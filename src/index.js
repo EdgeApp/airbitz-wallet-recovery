@@ -23,7 +23,7 @@ var utos = []; // Everything spendable in HD Seed
 var totalBalance = 0, tbInSatoshis = 0;
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedData = []; // For the table
-var dataTable; // DataTable Object
+var seedTable; // seedTable Object
 
 // Per address
 var unconfirmed = 0;
@@ -142,6 +142,7 @@ var html = {
 	idNames : {
 		userSeed: "masterSeed",
 		seedInfo: "seed-info",
+		searchSeed: "search",
 		load: "recover-button",
 		sweep: "sweep-funds",
 		userAddr: "btcAddr"
@@ -171,8 +172,8 @@ var html = {
 		},
 		table : {
 			//seedInfo: 
-			search: function(query) {
-				this.fnFilter(query);
+			search: function(table, query) {
+				seedTable.fnFilter(query);
 			},
 			clear: function(table) {
 				$(table).children("tbody").children("tr").remove();
@@ -190,6 +191,7 @@ var html = {
 var classNames = html.classNames, idNames = html.idNames;
 var hideClass = classNames.hide;
 var docElements = html.elements;
+var table = docElements.table;
 var currElement = docElements.curr;
 
 // ** Process HD Seed ** 
@@ -206,7 +208,7 @@ function processSeed(prs){
 	utos = [];
 	totalBalance = 0;
 	seedData = [];
-	if(seedPros > 1){ dataTable.clear() }
+	if(seedPros > 1){ seedTable.clear() }
 		else {
 			createTable();
 		}
@@ -318,11 +320,11 @@ function matchAddress(){
 function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
-	dataTable.row.add(seedData[seedIndex]).draw();
+	seedTable.row.add(seedData[seedIndex]).draw();
 	
 	if(hasFunds){
-		console.log( "Table add: " + dataTable.row(seedIndex).nodes().to$() );
-		dataTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
+		console.log( "Table add: " + seedTable.row(seedIndex).nodes().to$() );
+		seedTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
 	}
 }
 
@@ -424,10 +426,11 @@ function btcToSats(btcAmt){
 }
 
 function createTable() {
-	dataTable = $("#seed-info").DataTable(
+	seedTable = $("#seed-info").DataTable(
 	{
 		paging: true,
-		searching: false, // No built-in search bar. Make custom
+		"sDom": '<"top"i>rt<"bottom"lp><"clear">',
+		//searching: false, // No built-in search bar. Make custom
 		bLengthChange: false, // No "Show entries dropdown"
 		"fnDrawCallback": function( oSettings ) {
 			toggleAllKeys();
@@ -469,6 +472,10 @@ $(function() {
     });
     $( "#" + idNames.userAddr ).on('input',function(e){
     	html.enableInput(this, "#" + idNames.sweep );
+    });
+    $( "#" + idNames.searchSeed ).on('input',function(e){
+
+    	seedTable.search( $( this ).val() ).draw();
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
