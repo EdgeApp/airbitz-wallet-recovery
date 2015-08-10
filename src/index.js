@@ -429,7 +429,7 @@ function createTable() {
 	seedTable = $("#seed-info").DataTable(
 	{
 		paging: true,
-		"sDom": '<"top"i>rt<"bottom"lp><"clear">',
+		"sDom": '<"top"i>rt<"bottom"l><"clear">',
 		//searching: false, // No built-in search bar. Make custom
 		bLengthChange: false, // No "Show entries dropdown"
 		"fnDrawCallback": function( oSettings ) {
