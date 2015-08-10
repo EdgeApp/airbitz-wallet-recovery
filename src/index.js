@@ -385,7 +385,7 @@ function finishProcessingSeed(){
 	var totalToSend = totalBalance - minerFee;
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
-	$(".balance").html("Total To Send: " + disToSend + " (Transaction Fee is " + disFee + ")" );
+	$(".balance").html("Total To Send: " + disToSend + " <br>(Transaction Fee is " + disFee + ")" );
 	html.show( "." + classNames.sweep );
 	console.log("Finished Processing Seed");
 }
@@ -423,8 +423,7 @@ function btcToSats(btcAmt){
 	return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
 }
 
-function createTable(){
-	var rowCount = 0;
+function createTable() {
 	dataTable = $("#seed-info").DataTable(
 	{
 		paging: true,
