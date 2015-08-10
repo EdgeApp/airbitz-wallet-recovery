@@ -173,9 +173,10 @@ var html = {
 		table : {
 			//seedInfo: 
 			search: function(table, query) {
-				seedTable.fnFilter(query);
+				table.search( query ).draw();
 			},
 			clear: function(table) {
+				console.log("Cleared!");
 				$(table).children("tbody").children("tr").remove();
 			}
 		}
@@ -186,6 +187,9 @@ var html = {
 		$( "." + classNames.head ).text(this.display.head);
 		$( "#" + this.idNames.userSeed ).val("");
 		this.show( "." + classNames.seed );
+		seedTable.destroy();
+		table.clear( "#" + idNames.seedInfo );
+		clearSeed();
 	}
 };
 var classNames = html.classNames, idNames = html.idNames;
@@ -194,21 +198,25 @@ var docElements = html.elements;
 var table = docElements.table;
 var currElement = docElements.curr;
 
+function clearSeed() {
+	addressBlock.length = 0;
+	privKeySet.length = 0;
+	utos.length = 0;
+	totalBalance = 0;
+	seedData.length = 0;
+}
+
 // ** Process HD Seed ** 
-function processSeed(prs){
+function processSeed(prs) {
 	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
 	index = 0;
-	
 	checkSeed();
+
 	console.log("Start Processing Private Key");
 	seedPros++;
+	clearSeed();
 	
-	addressBlock = [];
-	privKeySet = [];
-	utos = [];
-	totalBalance = 0;
-	seedData = [];
-	if(seedPros > 1){ seedTable.clear() }
+	if(seedPros > 1){ table.clear( "#" + idNames.seedInfo ) }
 		else {
 			createTable();
 		}
@@ -274,7 +282,7 @@ function checkAddrBlock(){
 		checkAddr(addressBlock[lastPt]);
 		setTable(lastPt);
 	}
-	$("#seed-info").removeClass(hideClass); // Show table
+	$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
 	if(used){
 		setAddresses();
 	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
@@ -322,8 +330,7 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds){
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
 	seedTable.row.add(seedData[seedIndex]).draw();
 	
-	if(hasFunds){
-		console.log( "Table add: " + seedTable.row(seedIndex).nodes().to$() );
+	if(hasFunds) {
 		seedTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
 	}
 }
@@ -474,8 +481,7 @@ $(function() {
     	html.enableInput(this, "#" + idNames.sweep );
     });
     $( "#" + idNames.searchSeed ).on('input',function(e){
-
-    	seedTable.search( $( this ).val() ).draw();
+    	table.search(seedTable, $( this ).val() );
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
