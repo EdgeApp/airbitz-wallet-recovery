@@ -172,13 +172,22 @@ var html = {
 		},
 		table : {
 			//seedInfo: 
-			search: function(table, query) {
-				table.search( query ).draw();
+			search: function(tb, query) {
+				tb.search( query ).draw();
 			},
-			clear: function(table) {
+			clear: function(tb) {
 				console.log("Cleared!");
-				$(table).children("tbody").children("tr").remove();
-			}
+				$(tb).children("tbody").children("tr").remove();
+			},
+			setPg: function(tb,pageNum) {
+				pageNum = parseInt(pageNum);			
+				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
+				 will do a full draw resulting in the paging being reset back to the first page! */
+			},
+			getNumPgs: function(tb) {
+				return tb.page.info().pages;
+			},
+			numOfPgs: {}
 		}
 	},
 	newSeed: function() {
@@ -389,15 +398,17 @@ function finishProcessingSeed(){
 		$(".table-container").removeClass( classNames.noDisplay );
 	});
 	getBalance(utos);
-	console.log(minerFee);
 	minerFee = tran.getFee();
-	console.log(minerFee);
 	var totalToSend = totalBalance - minerFee;
 	if( totalToSend <= 0 ) { totalToSend = 0; }
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
+
 	$(".balance").html("Total To Send: " + disToSend + " <br>(Transaction Fee is " + disFee + ")" );
 	html.show( "." + classNames.sweep );
+
+	table.numOfPgs = table.getNumPgs(seedTable);
+	console.log(table.getNumPgs(seedTable));
 	console.log("Finished Processing Seed");
 }
 
@@ -519,16 +530,16 @@ $(function() {
 			showMessage( errMeses.noAddr );
 		}
 	});
-	$( "#seed-info" ).on( "click", "#toggleAllKeys", function() {
+	$( "." + idNames.seedInfo ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
 		toggleAllKeys();
 		$(this).text($(this).text() == hideAllKeys ? showAllKeys : hideAllKeys);
 	});
-	$( "#seed-info" ).on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
+	$( "." + idNames.seedInfo ).on("click", ".prk", function() { // On("Click") instead of .click() because element is created after the DOM has been created
 		$(this).parent().parent().find(".prkText").toggleClass(hideClass);
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
-	$( "#seed-info" ).on("click", ".qrcode-icon", function() {
+	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
 		console.log("Let there be light");
 		var thisCode = ($(this).children().attr("class")).replace(" ", ".");
 		var qrCodeText = $(this).parent().text();
@@ -542,5 +553,11 @@ $(function() {
         });
 		thisCode = thisCode.replace(".", " ");
 		$(this).append("<div class=\"" + thisCode + "\"></div>");
+	});
+	$( "." + idNames.seedInfo).on("click", ".page-num", function() {
+		var pageNumber = ( $( this ).attr( "page" ) - 1 ) // Page number starts at 0
+		table.setPg( seedTable,pageNumber );
+		$( this ).siblings(".active").removeClass( "active" );
+		$( this ).addClass( "active" );
 	});
 });
