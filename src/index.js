@@ -123,6 +123,13 @@ var errMeses = {
 	networkErr: "Network Connection Error"
 }
 var html = {
+	isEnabled : function(selector) {
+		if( !$( selector ).hasClass( "disabled" ) ){
+			return true;
+		} else {
+			return false;
+		}
+	},
 	show : function(selector) {
 		$( selector ).removeClass( classNames.noDisplay );
 	},
@@ -184,8 +191,26 @@ var html = {
 				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
 				 will do a full draw resulting in the paging being reset back to the first page! */
 			},
-			getNumPgs: function(tb) {
-				return tb.page.info().pages;
+			adjustIncrements: function(tb) {
+				console.log("Current page: " + this.curPg(tb));
+				console.log("total pages: " + this.getNumPgs(tb));
+				if( this.curPg(tb) > 0 ) {
+					$( ".prev-page" ).removeClass("disabled");
+				} else {
+					$( ".prev-page" ).addClass("disabled");
+				}
+				if( this.curPg(tb) >= this.getNumPgs(tb) ) {
+					console.log("max");
+					$( ".next-page" ).addClass("disabled");
+				} else {
+					$( ".next-page" ).removeClass("disabled");
+				}
+			},
+			getNumPgs: function(tb) { // Get total number of pages avaliable
+				return tb.page.info().pages - 1;
+			},
+			curPg: function(tb) {
+				return tb.page();
 			},
 			numOfPgs: {}
 		}
@@ -555,9 +580,18 @@ $(function() {
 		$(this).append("<div class=\"" + thisCode + "\"></div>");
 	});
 	$( "." + idNames.seedInfo).on("click", ".page-num", function() {
-		var pageNumber = ( $( this ).attr( "page" ) - 1 ) // Page number starts at 0
-		table.setPg( seedTable,pageNumber );
+		var pageButt = ( $( this ).attr( "page" ) - 1 ) // Page number starts at 0
+		table.setPg( seedTable,pageButt );
 		$( this ).siblings(".active").removeClass( "active" );
 		$( this ).addClass( "active" );
+		table.adjustIncrements(seedTable);
+	});
+	$( "." + idNames.seedInfo).on("click", ".prev-page", function() {
+		var pageButt = ( $( this ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
+		if( html.isEnabled(this) && pageButt > 0 ) {
+			seedTable.page( "next" ).draw(false);
+		}
+		var curPgNum = seedTable.page();
+		$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");
 	});
 });
