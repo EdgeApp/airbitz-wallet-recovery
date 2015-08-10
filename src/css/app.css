@@ -10,6 +10,20 @@
 .search-form {
     width:58%;
 }
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: #FFF;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color: #FFF;
+   opacity:  1;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color: #FFF;
+   opacity:  1;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color: #FFF;
+}
 .header-brand {
     font-weight: 300;
     color:#2291cf;
