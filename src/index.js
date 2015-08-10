@@ -302,7 +302,7 @@ function setTable(tableIndex){
 
 	var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + privKeySet[tableIndex] + "</span>");
 	
-	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = 0;}
+	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = currElement.set(0);}
 	else {
 		spendable = currElement.set(utos[order.indexOf(tableIndex)].amount);
 	}
@@ -317,7 +317,7 @@ function setTable(tableIndex){
 		);
 }
 
-function matchAddress(){
+function matchAddress() {
 	var addressLocation = [];
 	addressLocation = jQuery.map( utos, function( n, i ) {
 		return addressBlock.indexOf(n.address);
@@ -325,12 +325,13 @@ function matchAddress(){
 	return addressLocation;
 }
 
-function updateTable(seedIndex,address,amount,privateKey,hasFunds){
+function updateTable(seedIndex,address,amount,privateKey,hasFunds) {
 	var hdClass = "index-" + seedIndex;
 	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
 	seedTable.row.add(seedData[seedIndex]).draw();
 	
 	if(hasFunds) {
+		console.log(seedIndex);
 		seedTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
 	}
 }
