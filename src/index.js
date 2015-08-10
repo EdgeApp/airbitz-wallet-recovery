@@ -393,6 +393,7 @@ function finishProcessingSeed(){
 	minerFee = tran.getFee();
 	console.log(minerFee);
 	var totalToSend = totalBalance - minerFee;
+	if( totalToSend <= 0 ) { totalToSend = 0; }
 	var disToSend = currElement.set(totalToSend);
 	var disFee = currElement.set(minerFee);
 	$(".balance").html("Total To Send: " + disToSend + " <br>(Transaction Fee is " + disFee + ")" );
