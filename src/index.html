@@ -15,7 +15,7 @@
 </head>
 <body>
   <!-- Dropdown Structure -->
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="units" class="dropdown-content">
         <li><a class="unit-selector btc-unit" href="#!">BTC</a></li>
         <li><a class="unit-selector usd-unit" href="#!">USD</a></li>
         <li><a class="unit-selector mBTC-unit" href="#!">mBTC</a></li>
@@ -29,8 +29,18 @@
         <a href="#!" class="brand-logo airbitz-logo"><img src="imgs/logo-nav.png"></a>
         <ul class="right">
           <!-- Dropdown Trigger -->
-          <li><a class="dropdown-button selected" href="#!" data-activates="dropdown1">bits<i class="material-icons right">arrow_drop_down</i></a></li>
+          <li><a href="#!"><i class="material-icons">refresh</i></a></li>
+          <li><a class="dropdown-button selected-dropdown" href="#!" data-activates="units">bits<i class="material-icons right">arrow_drop_down</i></a></li>
         </ul>
+        <center>
+            <form class="search-form">
+              <div class="input-field">
+                <input id="search" type="search" required>
+                <label for="search"><i class="material-icons">search</i></label>
+                <i class="material-icons">close</i>
+              </div>
+            </form>
+        </center>
       </div>
     </nav>
     <div id="main">

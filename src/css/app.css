@@ -4,12 +4,15 @@
     background-color: #2291cf;
     font-weight: bold;
 }
+.airbitz-logo {
+    margin: 3px 0 0 10px;
+}
+.search-form {
+    width:58%;
+}
 .header-brand {
     font-weight: 300;
     color:#2291cf;
-}
-.airbitz-logo{
-    margin: 3px 0 0 10px;
 }
 .navbar .navbar-nav {
     display: inline-block;
@@ -20,44 +23,44 @@
 .navbar .navbar-collapse {
     text-align: center;
 }
-.currency-units{
+.currency-units {
 	color:white;
 }
-.currency-units: hover{
+.currency-units: hover {
 	color:#2291cf;
 	background-color:white;
 }
 
-.main-header{
+.main-header {
     width: 1205px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 114px;
 }
-.long-input{
+.long-input {
     width: 50%;
 }
-.new-seed{
+.new-seed {
 	margin-right: 20px;
 }
 
 .modal {
   text-align: center;
 }
-.prk{
+.prk {
 	float:right;
 }
-.invisible{
+.invisible {
 	visibility: hidden;
 }
-.gone, .selected-unit, .addr-input{
+.gone, .selected-unit, .addr-input {
     display:none;
 }
-.done{
+.done {
     color:green;
 }
 
-.error-screen{
+.error-screen {
 	margin-top:10px;
 }
 

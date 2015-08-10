@@ -68,7 +68,7 @@ var units = {
 				exchangeRate = data.amount;
 			},
 			error: function() {
-			showErrMessage(errMeses.networkErr);
+			showMessage(errMeses.networkErr);
 			}
 		});
 		return exchangeRate;
@@ -99,6 +99,7 @@ var units = {
 		// Nav bar
 		units.selected = $(unitToUpdate).text();
 		$( ".selected" ).text(units.selected);
+		$( ".selected-dropdown" ).html(units.selected + html.elements.dropdown);
 		$( ".selected-unit" ).removeClass("selected-unit");
 		$( unitToUpdate ).parent().addClass("selected-unit");
 		// Body
@@ -157,6 +158,7 @@ var html = {
 		reset: "new-seed"
 	},
 	elements : {
+		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
 		curr : {
 			start: function(sats) {
 				return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
@@ -233,7 +235,7 @@ function setUTXOs(arrayOfAddresses){
 		checkAddrBlock();
 	})
 	.fail(function() {
-		showErrMessage(errMeses.networkErr);
+		showMessage(errMeses.networkErr);
 	});
 }
 function getBlockAddresses(arrayOfAddresses){
@@ -328,7 +330,7 @@ function checkAddr(addr){
 		}
 	})
 	.fail(function() {
-		showErrMessage(errMeses.networkErr);
+		showMessage(errMeses.networkErr);
 	});
 }
 
@@ -338,7 +340,7 @@ function setUnconfirmed(addr){
 		checkIfUsed();
 	})
 	.fail(function() {
-		showErrMessage(errMeses.networkErr);	
+		showMessage(errMeses.networkErr);	
 	});
 }
 
@@ -400,7 +402,7 @@ function broadcastTx(tx){
 	insight.broadcast(tx, function(err, returnedTxId) {
 		if (err) {
 			// Handle errors...
-			showErrMessage(err);	
+			showMessage(err);	
 		} else {
 			// Mark the transaction as broadcasted
 			console.log("Transaction sent: " + returnedTxId);
@@ -435,7 +437,7 @@ function toggleAllKeys(){
 	}
 }
 
-function showErrMessage(errMessage,duration){
+function showMessage(errMessage,duration){
 	if(!duration){
 		duration = 3000; // By default, wait 3 secs.
 	}
@@ -477,11 +479,11 @@ $(function() {
 			        $(".loading-screen").addClass( classNames.noDisplay ); // Hide
 			        $(".balance").text("Load Seed to Get Balance");
 			        $(".seed-form").removeClass( classNames.noDisplay );
-			        showErrMessage( errMeses.invalidSeed );
+			        showMessage( errMeses.invalidSeed );
 			    }
 			}, 500);
 		} else {
-			showErrMessage( errMeses.noSeed );
+			showMessage( errMeses.noSeed );
 			console.log("Please input your seed first.");
 		}
 	});
@@ -493,7 +495,7 @@ $(function() {
 			var useraddr = $("#btcAddr").val();
 			sweepFunds(useraddr);
 		} else {
-			showErrMessage( errMeses.noAddr );
+			showMessage( errMeses.noAddr );
 		}
 	});
 	$( "#seed-info" ).on( "click", "#toggleAllKeys", function() {
