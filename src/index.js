@@ -200,7 +200,7 @@ var html = {
 						tb.page( direction ).draw(false);
 						curPgNum = table.curPg(tb);
 						$( ".pagination > .active" ).removeClass( "active " );
-						$(  "[page=\"" + (curPgNum++) + "\"]" ).addClass("active");
+						$(  "[page=\"" + (curPgNum + 1) + "\"]" ).addClass("active");
 					}
 					table.adjustIncrements(tb);
 				}
