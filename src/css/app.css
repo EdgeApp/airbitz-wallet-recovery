@@ -51,6 +51,9 @@
     margin-right: auto;
     padding-left: 114px;
 }
+.main-content {
+    width: 80%;
+}
 .long-input {
     width: 50%;
 }
