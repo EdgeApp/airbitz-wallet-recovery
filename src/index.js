@@ -192,19 +192,24 @@ var html = {
 				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
 				 will do a full draw resulting in the paging being reset back to the first page! */
 			},
-			page: function(tb,direction) {
-				var pageButt = ( $( this ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
-				if( html.isEnabled(this) && pageButt > 0 ) {
-					tb.page( direction ).draw(false);
+			page: function(tb,pageButt,direction) {
+				var pageButt = ( $( pageButt ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
+				if( html.isEnabled(pageButt) ) {
+					var curPgNum = table.curPg(tb);
+					if( curPgNum > 0 || "next" || curPgNum < table.getNumPgs || "previous" ) {
+						tb.page( direction ).draw(false);
+						curPgNum = table.curPg(tb);
+						$( ".pagination > .active" ).removeClass( "active " );
+						$(  "[page=\"" + (curPgNum++) + "\"]" ).addClass("active");
+					}
+					table.adjustIncrements(tb);
 				}
-				var curPgNum = tb.page();
-				$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");
 			},
 			adjustIncrements: function(tb) {
-				if( this.curPg(tb) > 0 ) {
-					$( ".prev-page" ).removeClass("disabled").addClass(classNames.waves);
-				} else {
+				if( this.curPg(tb) <= 0 ) {
 					$( ".prev-page" ).addClass("disabled").removeClass(classNames.waves);
+				} else {
+					$( ".prev-page" ).removeClass("disabled").addClass(classNames.waves);
 				}
 				if( this.curPg(tb) >= this.getNumPgs(tb) ) {
 					$( ".next-page" ).addClass("disabled").removeClass(classNames.waves);
@@ -593,16 +598,9 @@ $(function() {
 		table.adjustIncrements(seedTable);
 	});
 	$( "." + idNames.seedInfo).on("click", ".prev-page", function() {
-		table.page(seedTable, "previous");
-		/*
-		var pageButt = ( $( this ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
-		if( html.isEnabled(this) && pageButt > 0 ) {
-			seedTable.page( "previous" ).draw(false);
-		}
-		var curPgNum = seedTable.page();
-		$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");*/
+		table.page(seedTable, this, "previous");
 	});
 	$( "." + idNames.seedInfo).on("click", ".next-page", function() {
-		table.page(seedTable, "next");
+		table.page(seedTable, this, "next");
 	});
 });
