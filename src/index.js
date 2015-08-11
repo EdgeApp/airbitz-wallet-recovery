@@ -164,7 +164,8 @@ var html = {
 		hasFunds: "has-funds",
 		sweep: "sweep-form",
 		info: "seed-info",
-		reset: "new-seed"
+		reset: "new-seed",
+		waves: "waves-effect"
 	},
 	elements : {
 		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
@@ -191,19 +192,24 @@ var html = {
 				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
 				 will do a full draw resulting in the paging being reset back to the first page! */
 			},
+			page: function(tb,direction) {
+				var pageButt = ( $( this ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
+				if( html.isEnabled(this) && pageButt > 0 ) {
+					tb.page( direction ).draw(false);
+				}
+				var curPgNum = tb.page();
+				$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");
+			},
 			adjustIncrements: function(tb) {
-				console.log("Current page: " + this.curPg(tb));
-				console.log("total pages: " + this.getNumPgs(tb));
 				if( this.curPg(tb) > 0 ) {
-					$( ".prev-page" ).removeClass("disabled");
+					$( ".prev-page" ).removeClass("disabled").addClass(classNames.waves);
 				} else {
-					$( ".prev-page" ).addClass("disabled");
+					$( ".prev-page" ).addClass("disabled").removeClass(classNames.waves);
 				}
 				if( this.curPg(tb) >= this.getNumPgs(tb) ) {
-					console.log("max");
-					$( ".next-page" ).addClass("disabled");
+					$( ".next-page" ).addClass("disabled").removeClass(classNames.waves);
 				} else {
-					$( ".next-page" ).removeClass("disabled");
+					$( ".next-page" ).removeClass("disabled").addClass(classNames.waves);
 				}
 			},
 			getNumPgs: function(tb) { // Get total number of pages avaliable
@@ -587,11 +593,16 @@ $(function() {
 		table.adjustIncrements(seedTable);
 	});
 	$( "." + idNames.seedInfo).on("click", ".prev-page", function() {
+		table.page(seedTable, "previous");
+		/*
 		var pageButt = ( $( this ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
 		if( html.isEnabled(this) && pageButt > 0 ) {
-			seedTable.page( "next" ).draw(false);
+			seedTable.page( "previous" ).draw(false);
 		}
 		var curPgNum = seedTable.page();
-		$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");
+		$(  "[page=\"" + curPgNum + "\”]" ).siblings(".active").removeClass( "active" ).addClass("active");*/
+	});
+	$( "." + idNames.seedInfo).on("click", ".next-page", function() {
+		table.page(seedTable, "next");
 	});
 });
