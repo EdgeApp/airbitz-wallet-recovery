@@ -641,10 +641,10 @@ $(function() {
 	});
 	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
 		console.log("Show modal!");
-		var qrCodeTxt = $(this).parent().text();
-
+		var qrCodeTxt = $(this).parent().text().replace( /\s/g, '');
+		console.log("this:"+qrCodeTxt);
 		if( $( this ).parents("td").hasClass( classNames.address ) ) {
-			docElements.modal.create( docElements.modal.qrCode(), html.display.addr, qrCodeTxt );
+			docElements.modal.create( docElements.modal.qrCode(), html.display.addr, ("bitcoin:" + qrCodeTxt) );
 		} else if ( $( this ).parents("td").hasClass( classNames.prk ) ) {
 			docElements.modal.create( docElements.modal.qrCode(), html.display.prk, qrCodeTxt );
 		}
