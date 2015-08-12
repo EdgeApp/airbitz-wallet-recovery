@@ -152,7 +152,8 @@ var html = {
 		searchSeed: "search",
 		load: "recover-button",
 		sweep: "sweep-funds",
-		userAddr: "btcAddr"
+		userAddr: "btcAddr",
+		qrModal: "qr-modal"
 	},
 	classNames : {
 		head: "balance",
@@ -164,6 +165,10 @@ var html = {
 		hasFunds: "has-funds",
 		sweep: "sweep-form",
 		info: "seed-info",
+		modalContent: "modal-content",
+		modalHeader: "modal-header",
+		modalBody: "modal-body",
+		modalFoot: "modal-footer",
 		reset: "new-seed",
 		waves: "waves-effect"
 	},
@@ -224,6 +229,35 @@ var html = {
 				return tb.page();
 			},
 			numOfPgs: {}
+		},
+		modal : {
+			open: function(m) {
+				$( m ).openModal();
+			},
+			close: function(m) {
+				this.clearContent(m);
+				$( m ).closeModal();
+			},
+			clear: function(m) {
+				$( this.header(m) ).html("");
+				$( this.body(m) ).html("");
+			},
+			set: function(m, cont) {
+				$( this.header(m) ).text(cont);
+				$( this.body(m) ).qrcode(cont);
+			},
+			content: function(m) { 
+				return ("." + $( $( m ).children(( "." + classNames.modalContent )) )[0]["className"]); 
+			},
+			header: function(m) {
+				var content = this.content(m);
+				return ("." + $( $( content ).children(( "." + classNames.modalHeader )) )[0]["className"])
+			},
+			body: function(m) {
+				var content = this.content(m);
+				return ("." + $( $( content ).children(( "." + classNames.modalBody )) )[0]["className"]);
+			},
+			qrCode: function() { return ("#" + idNames.qrModal) }
 		}
 	},
 	newSeed: function() {
@@ -576,17 +610,14 @@ $(function() {
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
 	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
-		console.log("Let there be light");
+		console.log("Show modal!");
 		var thisCode = ($(this).children().attr("class")).replace(" ", ".");
-		var qrCodeText = $(this).parent().text();
-		console.log(thisCode);
-		var codeImage = $("." + thisCode).qrcode(qrCodeText);
+		var qrCodeTxt = $(this).parent().text();
 
-		BootstrapDialog.show({
-			size: BootstrapDialog.SIZE_LARGE,
-            title: qrCodeText,
-            message: codeImage
-        });
+		docElements.modal.clear( docElements.modal.qrCode() );
+		docElements.modal.set( docElements.modal.qrCode(), qrCodeTxt );
+		docElements.modal.open( docElements.modal.qrCode() );
+
 		thisCode = thisCode.replace(".", " ");
 		$(this).append("<div class=\"" + thisCode + "\"></div>");
 	});

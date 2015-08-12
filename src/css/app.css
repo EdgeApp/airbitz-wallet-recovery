@@ -44,7 +44,6 @@
 	color:#2291cf;
 	background-color:white;
 }
-
 .main-header {
     width: 1205px;
     margin-left: auto;
@@ -63,6 +62,9 @@
 
 .modal {
   text-align: center;
+}
+.modal-header {
+    color: #2291cf;
 }
 .prk {
 	float:right;
