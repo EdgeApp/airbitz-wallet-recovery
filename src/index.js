@@ -552,6 +552,8 @@ function getLiBx(){
 }
 
 $(function() {
+	$(".button-collapse").sideNav();
+	
 	//Handelers
 	$( ".unit-selector" ).click(function() {
 		units.selected = $( this ).text();

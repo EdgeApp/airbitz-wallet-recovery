@@ -27,12 +27,20 @@
     <nav class="navbar-brand">
       <div class="nav-wrapper">
         <a href="#!" class="brand-logo airbitz-logo"><img src="imgs/logo-nav.png"></a>
-        <ul class="right">
+        <a href="#" data-activates="nav-functions" class="button-collapse"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-small-and-down">
           <li class="hide-on-large-only"><a href="#!"><i class="material-icons">search</i>
           </a></li>
           <li><a href="#!"><i class="material-icons">refresh</i></a></li>
           <!-- Dropdown Trigger -->
-          <li><a class="dropdown-button selected-dropdown" href="#!" data-activates="units">bits<i class="material-icons right">arrow_drop_down</i></a></li>
+          <li><a class="dropdown-button selected-dropdown" href="#!" data-activates="units">bits<i class="material-icons right ">arrow_drop_down</i></a></li>
+        </ul>
+        <ul id="nav-functions" class="side-nav">
+            <li class="hide-on-large-only"><a href="#!">Search</a>
+            </li>
+            <li><a href="#!">Refresh</a></li>
+            <!-- Dropdown Trigger -->
+            <li><a class="dropdown-button selected-dropdown" href="#!" data-activates="units">bits<i class="material-icons right ">arrow_drop_down</i></a></li>
         </ul>
         <center>
             <form class="search-form hide-on-med-and-down">
