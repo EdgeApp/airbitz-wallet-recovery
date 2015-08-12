@@ -65,9 +65,16 @@
   width: 40%;
 }
 .modal-header , .modal-text {
-    font-size: 1.3em;
+    
     color: #2291cf;
 }
+.modal-header {
+    font-size: 2.5em;
+}
+.modal-text {
+    font-size: 1.3em;
+}
+
 .prk {
 	float:right;
 }

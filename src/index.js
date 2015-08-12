@@ -148,7 +148,9 @@ var html = {
 		return ("." + $( $( parent ).children(( child )) )[0]["className"])
 	},
 	display : {
-		head: "Load Seed to Get Balance"
+		head: "Load Seed to Get Balance",
+		addr: "Bitcoin Address",
+		prk: "Private Key"
 	},
 	idNames : {
 		userSeed: "masterSeed",
@@ -169,6 +171,8 @@ var html = {
 		hasFunds: "has-funds",
 		sweep: "sweep-form",
 		info: "seed-info",
+		address: "bitcoin-address",
+		prk: "bitcoin-private-key",
 		modalContent: "modal-content",
 		modalHeader: "modal-header",
 		modalBody: "modal-body",
@@ -237,6 +241,11 @@ var html = {
 			numOfPgs: {}
 		},
 		modal : {
+			create: function(m, headerCont, cont) {
+				this.clear(m);
+				this.set( m, headerCont, cont );
+				this.open(m);
+			},
 			open: function(m) {
 				$( m ).openModal();
 			},
@@ -248,7 +257,8 @@ var html = {
 				$( this.header(m) ).html("");
 				$( this.body(m) ).html(this.mainDiv + this.textDiv);
 			},
-			set: function(m, cont) {
+			set: function(m, headerCont, cont) {
+				$( this.header(m) ).text(headerCont);
 				$( this.main(m) ).qrcode(cont);
 				$( this.text(m) ).text(cont);
 			},
@@ -633,9 +643,11 @@ $(function() {
 		console.log("Show modal!");
 		var qrCodeTxt = $(this).parent().text();
 
-		docElements.modal.clear( docElements.modal.qrCode() );
-		docElements.modal.set( docElements.modal.qrCode(), qrCodeTxt );
-		docElements.modal.open( docElements.modal.qrCode() );
+		if( $( this ).parents("td").hasClass( classNames.address ) ) {
+			docElements.modal.create( docElements.modal.qrCode(), html.display.addr, qrCodeTxt );
+		} else if ( $( this ).parents("td").hasClass( classNames.prk ) ) {
+			docElements.modal.create( docElements.modal.qrCode(), html.display.prk, qrCodeTxt );
+		}
 	});
 	$( "." + idNames.seedInfo).on("click", ".page-num", function() {
 		var pageButt = ( $( this ).attr( "page" ) - 1 ) // Page number starts at 0
