@@ -37,13 +37,23 @@
 .navbar .navbar-collapse {
     text-align: center;
 }
-.currency-units {
-	color:white;
+.selected-nav {
+    background-color: #2291cf;
+}
+.selected-nav {
+    background-color: #2291cf;
+}
+.selected-nav:hover .selected {
+    color: #444;
+}
+.currency-units, .selected-nav > .selected {
+	color: white;
 }
 .currency-units: hover {
 	color:#2291cf;
-	background-color:white;
+	background-color: white;
 }
+
 .main-header {
     width: 1205px;
     margin-left: auto;
