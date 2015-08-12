@@ -143,6 +143,10 @@ var html = {
 			$( button ).attr("class","btn btn-large disabled");
 		}
 	},
+	getChildOfParent : function(parent,child) {
+		console.log(parent,child);
+		return ("." + $( $( parent ).children(( child )) )[0]["className"])
+	},
 	display : {
 		head: "Load Seed to Get Balance"
 	},
@@ -168,6 +172,8 @@ var html = {
 		modalContent: "modal-content",
 		modalHeader: "modal-header",
 		modalBody: "modal-body",
+		modalMain: "modal-main",
+		modalText: "modal-text",
 		modalFoot: "modal-footer",
 		reset: "new-seed",
 		waves: "waves-effect"
@@ -240,23 +246,33 @@ var html = {
 			},
 			clear: function(m) {
 				$( this.header(m) ).html("");
-				$( this.body(m) ).html("");
+				$( this.body(m) ).html(this.mainDiv + this.textDiv);
 			},
 			set: function(m, cont) {
-				$( this.header(m) ).text(cont);
-				$( this.body(m) ).qrcode(cont);
+				$( this.main(m) ).qrcode(cont);
+				$( this.text(m) ).text(cont);
 			},
-			content: function(m) { 
-				return ("." + $( $( m ).children(( "." + classNames.modalContent )) )[0]["className"]); 
+			content: function(m) {
+				return html.getChildOfParent(m, "." + classNames.modalContent);
 			},
 			header: function(m) {
 				var content = this.content(m);
-				return ("." + $( $( content ).children(( "." + classNames.modalHeader )) )[0]["className"])
+				return html.getChildOfParent(content, "." + classNames.modalHeader);
 			},
 			body: function(m) {
 				var content = this.content(m);
-				return ("." + $( $( content ).children(( "." + classNames.modalBody )) )[0]["className"]);
+				return html.getChildOfParent(content, "." + classNames.modalBody);
 			},
+			main: function(m) {
+				var body = this.body(m);
+				return html.getChildOfParent(body, "." + classNames.modalMain);
+			},
+			text: function(m) {
+				var body = this.body(m);
+				return html.getChildOfParent(body, "." + classNames.modalText);
+			},
+			mainDiv: "<div class=\"modal-main\"></div>",
+			textDiv: "<h5 class=\"modal-text\"></h5>",
 			qrCode: function() { return ("#" + idNames.qrModal) }
 		}
 	},
@@ -410,7 +426,6 @@ function updateTable(seedIndex,address,amount,privateKey,hasFunds) {
 	seedTable.row.add(seedData[seedIndex]).draw();
 	
 	if(hasFunds) {
-		console.log(seedIndex);
 		seedTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
 	}
 }
@@ -478,7 +493,6 @@ function finishProcessingSeed(){
 	html.show( "." + classNames.sweep );
 
 	table.numOfPgs = table.getNumPgs(seedTable);
-	console.log(table.getNumPgs(seedTable));
 	console.log("Finished Processing Seed");
 }
 
@@ -524,6 +538,10 @@ function createTable() {
 		bLengthChange: false, // No "Show entries dropdown"
 		"fnDrawCallback": function( oSettings ) {
 			toggleAllKeys();
+		},
+		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+	    	$('td:eq(1)', nRow).addClass( "bitcoin-address" );
+	    	$('td:eq(3)', nRow).addClass( "bitcoin-private-key" );
 		}
 	});
 }
@@ -613,15 +631,11 @@ $(function() {
 	});
 	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
 		console.log("Show modal!");
-		var thisCode = ($(this).children().attr("class")).replace(" ", ".");
 		var qrCodeTxt = $(this).parent().text();
 
 		docElements.modal.clear( docElements.modal.qrCode() );
 		docElements.modal.set( docElements.modal.qrCode(), qrCodeTxt );
 		docElements.modal.open( docElements.modal.qrCode() );
-
-		thisCode = thisCode.replace(".", " ");
-		$(this).append("<div class=\"" + thisCode + "\"></div>");
 	});
 	$( "." + idNames.seedInfo).on("click", ".page-num", function() {
 		var pageButt = ( $( this ).attr( "page" ) - 1 ) // Page number starts at 0

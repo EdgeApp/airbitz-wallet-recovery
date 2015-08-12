@@ -62,8 +62,10 @@
 
 .modal {
   text-align: center;
+  width: 40%;
 }
-.modal-header {
+.modal-header , .modal-text {
+    font-size: 1.3em;
     color: #2291cf;
 }
 .prk {
