@@ -171,6 +171,7 @@ var html = {
 		hasFunds: "has-funds",
 		sweep: "sweep-form",
 		info: "seed-info",
+		pageNums: "page-nums",
 		address: "bitcoin-address",
 		prk: "bitcoin-private-key",
 		modalContent: "modal-content",
@@ -202,10 +203,27 @@ var html = {
 				console.log("Cleared!");
 				$(tb).children("tbody").children("tr").remove();
 			},
-			setPg: function(tb,pageNum) {
+			setPg: function(tb,pageNum) { // Set pagnation to page pageNum
 				pageNum = parseInt(pageNum);			
 				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
 				 will do a full draw resulting in the paging being reset back to the first page! */
+			},
+			setPgs: function(tb) { // Set up pagnation to have up to 10 page buttons
+				var numberOfPages = this.getNumPgs(tb);
+				console.log(numberOfPages);
+
+				this.addPgNums( $( "." + classNames.pageNums ), numberOfPages );
+			},
+			addPgNums: function(numDiv, maxNum) {
+				numDiv.html(""); // Make sure there's no numbered pagnation buttons.
+				for(var x = 0; x <= 10 && x <= maxNum; x++) { // Max 10 #'ed buttons
+					if(!this.addPgNums.didrun) {
+						numDiv.html(table.firstPg);
+						this.addPgNums.didrun = true;
+					} else {
+						numDiv.append( table.inactivePg.getInactivePage(x + 1) );
+					}
+				}
 			},
 			page: function(tb,pageButt,direction) {
 				var pageButt = ( $( pageButt ).siblings(".active").attr( "page" ) - 1 ) // Page number starts at 0
@@ -214,7 +232,7 @@ var html = {
 					if( curPgNum > 0 || "next" || curPgNum < table.getNumPgs || "previous" ) {
 						tb.page( direction ).draw(false);
 						curPgNum = table.curPg(tb);
-						$( ".pagination > .active" ).removeClass( "active " );
+						$( ".pagination" ).find( ".active" ).removeClass( "active " );
 						$(  "[page=\"" + (curPgNum + 1) + "\"]" ).addClass("active");
 					}
 					table.adjustIncrements(tb);
@@ -238,7 +256,19 @@ var html = {
 			curPg: function(tb) {
 				return tb.page();
 			},
-			numOfPgs: {}
+			numOfPgs: {},
+			firstPg: "<li class=\"active page-num page-1\" page=\"1\"><a href=\"#!\">1</a></li>",
+			inactivePg: {
+				getInactivePage: function(pageNum) {
+					this.pageNumber = pageNum;
+					console.log(this.pageNumber);
+					console.log("<li class=\"waves-effect page-num page-" + this.pageNumber + "\" page="
+				+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>");
+					return "<li class=\"waves-effect page-num page-" + this.pageNumber + "\" page=\""
+				+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>";
+				},
+				pageNumber: {}
+			}
 		},
 		modal : {
 			create: function(m, headerCont, cont) {
@@ -490,7 +520,8 @@ function finishProcessingSeed(){
 	$(".loading-screen").addClass( classNames.noDisplay ); // Hide
 	$( "." + classNames.checkMark ).fadeIn(2000, function(){
 		$( this ).fadeOut();
-		$(".table-container").removeClass( classNames.noDisplay );
+		table.setPgs(seedTable);
+		$( ".table-container" ).removeClass( classNames.noDisplay );
 	});
 	getBalance(utos);
 	minerFee = tran.getFee();
