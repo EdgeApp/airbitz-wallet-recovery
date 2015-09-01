@@ -145,6 +145,7 @@ var seed = {
 	},
 	show: function() {
 		minerFee = tran.getFee(seed.utos, seed.balance);
+		table.setPgs(seedTable);
 		$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
 		docElements.loading.hide(); // Stop loading screen.
 		docElements.header.show(seed.balance, minerFee); // Show main header text
@@ -429,6 +430,7 @@ var html = {
 			},
 			setPgs: function(tb) { // Set up pagnation to have up to 10 page buttons
 				var numberOfPages = this.getNumPgs(tb);
+				console.log(numberOfPages);
 				this.addPgNums( $( "." + classNames.pageNums ), numberOfPages );
 			},
 			addPgNums: function(numDiv, maxNum) {
