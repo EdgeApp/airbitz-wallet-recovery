@@ -10,7 +10,7 @@ var HDPrivateKey = bitcore.HDPrivateKey;
 var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
 var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
 var keysToggeled = false; //All keys toggeled.
-var minerFee = 10000;
+var minerFee = 10000; // Default miner fee
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedTable; // seedTable Object
 // Per address
@@ -35,8 +35,8 @@ var tran = {
 
 		return tran;
 	},
-	sign : function() {},
-	getFee : function(utos,amount) {
+	sign : function() {}, // TODO Sign a transaction
+	getFee : function(utos,amount) { // Get estimated transaction fee
 		var tran = new bitcore.Transaction()
 		.from(utos)
 		.to(firstSeedAddr, amount);
@@ -85,6 +85,9 @@ var units = {
 				break;
 		}
 		return unitAmt;
+	},
+	btcToSats: function(btcAmt) {
+		return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
 	},
 	update: function(unitToUpdate){
 		// Nav bar
@@ -217,13 +220,14 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	checked: $.Deferred(),
 	checkBlock: function(addressSet) { // Check if block has been used.
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
+		var lastPt = 0;
 		this.reset();
 		var checked = 0;
 		var f = function(counter) {
 			if( counter <= blockSize ) {
-				seed.data.push(seed.getInfo(counter)); // Get seed data
-				console.log(counter);
-				seedTable.row.add(seed.data[counter]).draw(); // Push seed data to table
+				lastPt = (counter + (startingPoint - 1));
+				seed.data.push(seed.getInfo(lastPt)); // Get seed data
+				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
 				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
 				.done(function( received, unconfirmed) {
@@ -285,7 +289,7 @@ var uto = {
 	extract: function(utoSet) { // 
 		var extracted = [];
 		for(x in utoSet) {
-			utoSet[x].amount = btcToSats(utoSet[x].amount); // Set amount to satoshis
+			utoSet[x].amount = units.btcToSats(utoSet[x].amount); // Set amount to satoshis
 			extracted.push(utoSet[x]);
 		}
 		return extracted;
@@ -394,10 +398,10 @@ var html = {
 			}
 		},
 		header : {
-			reset: function() {
+			reset: function() { // Set header text to default
 				$(".balance").text("Load Seed to Get Balance");
 			},
-			show: function(totalBalance, minerFee) {
+			show: function(totalBalance, minerFee) { // Show How much will be sent
 				var totalToSend = totalBalance - minerFee;
 				if( totalToSend <= 0 ) { totalToSend = 0; }
 				var disToSend = currElement.set(totalToSend);
@@ -451,16 +455,16 @@ var html = {
 					table.adjustIncrements(tb);
 				}
 			},
-			adjustIncrements: function(tb) {
-				if( this.curPg(tb) <= 0 ) {
-					$( ".prev-page" ).addClass("disabled").removeClass(classNames.waves);
+			adjustIncrements: function(tb) { // Enable and/or disable incremental buttons
+				if( this.curPg(tb) <= 0 ) { // If on the first page,
+					$( ".prev-page" ).addClass("disabled").removeClass(classNames.waves); // Disable - incremental
 				} else {
-					$( ".prev-page" ).removeClass("disabled").addClass(classNames.waves);
+					$( ".prev-page" ).removeClass("disabled").addClass(classNames.waves); // Otherwise, make sure it's enabled.
 				}
-				if( this.curPg(tb) >= this.getNumPgs(tb) ) {
-					$( ".next-page" ).addClass("disabled").removeClass(classNames.waves);
+				if( this.curPg(tb) >= this.getNumPgs(tb) ) { // If on the last page,
+					$( ".next-page" ).addClass("disabled").removeClass(classNames.waves); // Disable + incremental
 				} else {
-					$( ".next-page" ).removeClass("disabled").addClass(classNames.waves);
+					$( ".next-page" ).removeClass("disabled").addClass(classNames.waves); // Otherwise, make sure it's enabled.
 				}
 			},
 			getNumPgs: function(tb) { // Get total number of pages avaliable
@@ -552,7 +556,7 @@ function matchAddress() {
 	return addressLocation;
 }
 
-function transErr(e){
+function transErr(e) {
 	var response = "";
 	switch(e) {
 		case empty:
@@ -564,7 +568,7 @@ function transErr(e){
 	return response;
 }
 // ** SWEEP FUNDS ** 
-function sweepFunds(addr){
+function sweepFunds(addr) {
 	console.log("Start Sweep");
 	var txID = "No ID";
 	var transaction = tran.create(addr);
@@ -583,9 +587,7 @@ function broadcastTx(tx){
 		}
 	})
 }
-function btcToSats(btcAmt){
-	return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
-}
+
 function createTable() {
 	seedTable = $("#seed-info").DataTable(
 	{
@@ -602,19 +604,19 @@ function createTable() {
 		}
 	});
 }
-function toggleAllKeys(){
+function toggleAllKeys() {
 	if(keysToggeled){
 		$(".prkText").removeClass(hideClass);
 	} else {
 		$(".prkText").addClass(hideClass);
 	}
 }
-function updateLiBxNum(){
+function updateLiBxNum() {
 	liBxNum++;
 	liBxNam = "qr-pic qrcode-" + liBxNum;
 	qrCodeIcon = getLiBx();
 }
-function getLiBx(){
+function getLiBx() {
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
 $(function() {
@@ -677,7 +679,6 @@ $(function() {
 	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
 		console.log("Show modal!");
 		var qrCodeTxt = $(this).parent().text().replace( /\s/g, '');
-		console.log("this:"+qrCodeTxt);
 		if( $( this ).parents("td").hasClass( classNames.address ) ) {
 			docElements.modal.create( docElements.modal.qrCode(), html.display.addr, ("bitcoin:" + qrCodeTxt) );
 		} else if ( $( this ).parents("td").hasClass( classNames.prk ) ) {
