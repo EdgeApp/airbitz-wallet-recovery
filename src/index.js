@@ -1,5 +1,4 @@
 // Utility to Recover funds from an Airbitz HD Seed.
-
 var bitcore = require('bitcore');
 var Insight = require('bitcore-explorers').Insight;
 var insight = new Insight();
@@ -8,45 +7,39 @@ var api = "https://insight.bitpay.com/api/";
 var insightAddr = "https://insight.bitpay.com/address/";
 var sweepUnconfirmed = true;
 var HDPrivateKey = bitcore.HDPrivateKey;
-var index;
-var seedPros = 0;
-var addressBlock = [];
-var privKeySet = [];
 var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
 var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
 var keysToggeled = false; //All keys toggeled.
-var address;
-var firstSeedAddr;
-var derived;
 var minerFee = 10000;
-var utos = []; // Everything spendable in HD Seed
-var totalBalance = 0, tbInSatoshis = 0;
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
-var seedData = []; // For the table
 var seedTable; // seedTable Object
-
 // Per address
-var unconfirmed = 0;
-var totalReceived;
 var exchangeRate = 300;
-var used = true; // By default, assume addrs are used.
+var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
+var liBxNum = 0; var qrIndx = "qrcode-";
+var liBxNam = qrIndx + liBxNum; //Lightbox name
+var qrCodeIcon = getLiBx();
+var errMeses = {
+	noSeed: "Please input a seed first",
+	noAddr: "Please input your address",
+	invalidSeed: "Invalid Seed",
+	networkErr: "Network Connection Error"
+}
 var tran = {
-	create : function(addr) {
+	create : function(toAddr,utos) {
 		tran = new bitcore.Transaction()
 		.from(utos)
-		.to(addr, (totalBalance - minerFee))
+		.to(toAddr, (totalBalance - minerFee))
 		.fee(minerFee)
 		.sign(privKeySet);
 
 		return tran;
 	},
-	sign : function(tran) {
-
-	},
-	getFee : function() {
+	sign : function() {},
+	getFee : function(utos,amount) {
 		var tran = new bitcore.Transaction()
 		.from(utos)
-		.to(firstSeedAddr, totalBalance);
+		.to(firstSeedAddr, amount);
 
 		return tran._estimateFee();
 	}
@@ -59,7 +52,6 @@ var units = {
 	mBTC:"/100000",
 	BTC:"/100000000",
 	USD: function(){
-		// TODO Fetch price
 		 $.ajax({
 		 	url: "https://api.coinbase.com/v2/prices/buy?currency=USD", 
 		 	type: "GET",
@@ -68,23 +60,22 @@ var units = {
 				exchangeRate = data.amount;
 			},
 			error: function() {
-			showMessage(errMeses.networkErr);
+			//docElements.showMes(errMeses.networkErr);
 			}
 		});
 		return exchangeRate;
 	},
 	convert: function(satsAmt){
 		var unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
-		var spacing = " ";
 		switch(this.selected){
 			case "bits":
-				unitAmt = unitAmt.bits + spacing + this.names[1];
+				unitAmt = unitAmt.bits + " " + this.names[1];
 				break;
 			case "mBTC":
-				unitAmt = unitAmt.mBTC + spacing + this.names[2];
+				unitAmt = unitAmt.mBTC + " " + this.names[2];
 				break;
 			case "BTC":
-				unitAmt = unitAmt.BTC + spacing + this.names[3];
+				unitAmt = unitAmt.BTC + " " + this.names[3];
 				break;
 			case "USD":
 				this.USD();
@@ -109,18 +100,203 @@ var units = {
 		});
 	}
 };
-
-var hdPrivateKey;
-var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
-var liBxNum = 0; var qrIndx = "qrcode-";
-var liBxNam = qrIndx + liBxNum; //Lightbox name
-var qrCodeIcon = getLiBx();
-
-var errMeses = {
-	noSeed: "Please input a seed first",
-	noAddr: "Please input your address",
-	invalidSeed: "Invalid Seed",
-	networkErr: "Network Connection Error"
+var seed = {
+	seedsProcessed: 0,
+	data: [],
+	checked: $.Deferred(),
+	index: {},
+	balance: {},
+	utos: [],
+	hdKey: {},
+	keys: [],
+	addresses: [],
+	used: false,
+	clear: function() {
+		this.index = 0;
+		this.checked = $.Deferred();
+		block.addresses.length = 0;
+		block.keys.length = 0;
+		this.utos.length = 0;
+		this.balance = 0;
+		this.data.length = 0;
+	},
+	check: function() {
+		derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+	},
+	reset: function(hdseed) {
+		this.clear();
+		this.hdKey = new HDPrivateKey.fromSeed(hdseed);
+		this.check();
+		console.log("Start Processing Private Key");
+		this.seedsProcessed++;
+	},
+	process: function(hdseed) {
+		this.reset(hdseed); // Reset seed properties for new seed
+		this.setTable();
+		this.nextBlock();
+		$.when(this.checked).done(function() {
+			seed.balance = uto.getVal(seed.utos);
+			seed.show();
+			console.log("Finished Processing Seed");
+		});
+	},
+	show: function() {
+		minerFee = tran.getFee(seed.utos, seed.balance);
+		$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
+		docElements.loading.hide(); // Stop loading screen.
+		docElements.header.show(seed.balance, minerFee); // Show main header text
+		html.show( "." + classNames.info );
+		table.numOfPgs = table.getNumPgs(seedTable);
+	},
+	setTable: function() {
+		if(this.seedsProcessed > 1) { // If we've made a seed before, clear previous table.
+			table.clear( "#" + idNames.seedInfo ); 
+		}
+		else {
+			createTable();
+		}
+	},
+	setAddresses: function() { // Set next block of addresses & keys out of HDSeed
+		for(var x = 0;x <= blockSize ;x++) {
+			this.setAddr();
+			this.index++;
+		}
+	},
+	setAddr: function() { // Set next single address & key out of HDSeed
+		var key = this.nextKey();
+		var address = key.toAddress();
+		if(this.index == 0){ firstSeedAddr = address.toString(); }
+		this.keys.push(key.toWIF());
+		this.addresses.push(address.toString());
+	},
+	nextKey: function(hdPrivateKey) { // Get next private key out of HDSeed
+		var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+		return derived.privateKey;
+	},
+	nextBlock: function() { // Process next block of keys and addresses in seed.
+		this.setAddresses();
+		uto.get(seed.addresses); // Get utos
+		$.when(uto.retrieved).done(function(utos) {
+			seed.utos = utos;
+		});
+		block.checkBlock(this.addresses); // Check block of addresses if they've been used.
+		$.when( block.checked ).done( function(hasFunds) {
+			if( hasFunds ) {
+				console.log("Next Block");
+				seed.nextBlock();
+			} else {
+				seed.checked.resolve();
+			}
+		});
+	},
+	getInfo: function(tableIndex) {
+		updateLiBxNum();
+		var hasFunds = false;
+		var order = matchAddress();
+		var addrLink = "<a target=\"0\" href=\"" + insightAddr + seed.addresses[tableIndex] + "\">";
+		var link2 = "</a>";
+		var tableAddr = (qrCodeIcon + (addrLink + seed.addresses[tableIndex] + link2) );
+		updateLiBxNum();
+		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
+		if( typeof seed.utos[order.indexOf(tableIndex)] === 'undefined' ) {
+			var spendable = currElement.set(0);
+		}
+		else {
+			spendable = currElement.set(seed.utos[order.indexOf(tableIndex)].amount);
+		}
+		if(spendable > 0) { hasFunds = true; }
+		var hdClass = "index-" + seed.index;
+		return [tableIndex,tableAddr,spendable,tablePrk, docElements.showKeyBut];
+	}
+}
+var block = { // A block is an array of addresses or keys of length defined by blockSize
+	addresses: {},
+	keys: {},
+	totalReceived: 0,
+	totalUnconfirmed: 0,
+	checked: $.Deferred(),
+	checkBlock: function(addressSet) { // Check if block has been used.
+		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
+		this.reset();
+		var checked = 0;
+		var f = function(counter) {
+			if( counter <= blockSize ) {
+				seed.data.push(seed.getInfo(counter)); // Get seed data
+				console.log(counter);
+				seedTable.row.add(seed.data[counter]).draw(); // Push seed data to table
+				lastPt = (counter + (startingPoint - 1));
+				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
+				.done(function( received, unconfirmed) {
+					block.totalReceived += received[0];
+					block.totalUnconfirmed += unconfirmed[0];
+					checked++;
+					if( checked > blockSize ) { // Done checking all addresses in addressSet
+						if( block.getTotal() > 0 ) {
+							block.checked.resolve(true);
+						} else {
+							block.checked.resolve(false);
+						}
+					}
+				});
+				f(counter+1);
+			}
+		};
+		f(0);
+	},
+	getBlock: function(array) {
+		array = array.slice((array.length - blockSize),array.length); // get last block
+		array = array.join(); // Comma seperated addrs.
+		return array;
+	},
+	getTotal: function() {
+		return this.totalReceived + this.totalUnconfirmed;
+	},
+	getReceived: function(addr) { // Get total ever sent to single address
+		return $.get( api + "addr/" + addr + "/totalReceived" )
+		.fail(function() {
+			docElements.showMes(errMeses.networkErr);
+		});
+	},
+	getUnconfirmed: function(addr) { // Get total unconfirmed balance of single address.
+		return $.get( api + "addr/" + addr + "/unconfirmedBalance")
+		.fail(function() {
+			docElements.showMes(errMeses.networkErr);
+		});
+	},
+	reset: function() {
+		var lastPt = 0;
+		this.checked = $.Deferred();
+		block.totalReceived = 0;
+		block.totalUnconfirmed = 0;
+	}
+}
+var uto = {
+	retrieved: $.Deferred(),
+	get: function(addressSet) { // Lookup UTOs for set of addresses
+		addressSet = block.getBlock(addressSet);
+		$.get(api + "addrs/" + addressSet + "/utxo")
+		.done(function( data ) { // Data = all utos in addressSet
+			uto.retrieved.resolve( uto.extract(data) );
+		})
+		.fail(function() {
+			docElements.showMes(errMeses.networkErr);
+		});
+	},
+	extract: function(utoSet) { // 
+		var extracted = [];
+		for(x in utoSet) {
+			utoSet[x].amount = btcToSats(utoSet[x].amount); // Set amount to satoshis
+			extracted.push(utoSet[x]);
+		}
+		return extracted;
+	},
+	getVal: function(utoSet) {
+		var utoVal = 0;
+		for(x in utoSet) {
+			utoVal += utoSet[x].amount;
+		}
+		return utoVal;
+	}
 }
 var html = {
 	isEnabled : function(selector) {
@@ -185,6 +361,13 @@ var html = {
 	},
 	elements : {
 		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
+		showKeyBut: "<button class=\"btn btn-link prk\">Show Private Key</button>",
+		showMes: function(errMessage,duration) {
+			if(!duration) {
+				duration = 3000; // By default, wait 3 secs.
+			}
+			Materialize.toast(errMessage,duration);
+		},
 		curr : {
 			start: function(sats) {
 				return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
@@ -194,8 +377,41 @@ var html = {
 				return this.start(sats) + units.convert(sats) + this.end;
 			}
 		},
+		loading : {
+			show: function() {
+				$(".balance").text("Checking seed...");
+				html.hide( ".seed-form" );
+				html.show( ".loading-screen" );
+			},
+			hide: function() {
+				html.hide( ".loading-screen" );
+			},
+			done: function() {
+				$( "." + classNames.checkMark ).fadeIn(2000, function(){
+					$( this ).fadeOut();
+					table.create();
+				});
+			}
+		},
+		header : {
+			reset: function() {
+				$(".balance").text("Load Seed to Get Balance");
+			},
+			show: function(totalBalance, minerFee) {
+				var totalToSend = totalBalance - minerFee;
+				if( totalToSend <= 0 ) { totalToSend = 0; }
+				var disToSend = currElement.set(totalToSend);
+				var disFee = currElement.set(minerFee);
+
+				$(".balance").html("Total To Send: " + disToSend + " <br>(Transaction Fee is " + disFee + ")" );
+				html.show( "." + classNames.sweep );
+			},
+		},
 		table : {
-			//seedInfo: 
+			create: function() {
+				this.setPgs(seedTable);
+				html.show( ".table-container" );
+			},
 			search: function(tb, query) {
 				tb.search( query ).draw();
 			},
@@ -205,13 +421,10 @@ var html = {
 			},
 			setPg: function(tb,pageNum) { // Set pagnation to page pageNum
 				pageNum = parseInt(pageNum);			
-				tb.page( pageNum ).draw( false ); /* do a standing redraw. Without this parameter, draw()
-				 will do a full draw resulting in the paging being reset back to the first page! */
+				tb.page( pageNum ).draw( false );
 			},
 			setPgs: function(tb) { // Set up pagnation to have up to 10 page buttons
 				var numberOfPages = this.getNumPgs(tb);
-				console.log(numberOfPages);
-
 				this.addPgNums( $( "." + classNames.pageNums ), numberOfPages );
 			},
 			addPgNums: function(numDiv, maxNum) {
@@ -261,11 +474,8 @@ var html = {
 			inactivePg: {
 				getInactivePage: function(pageNum) {
 					this.pageNumber = pageNum;
-					console.log(this.pageNumber);
-					console.log("<li class=\"waves-effect page-num page-" + this.pageNumber + "\" page="
-				+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>");
 					return "<li class=\"waves-effect page-num page-" + this.pageNumber + "\" page=\""
-				+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>";
+							+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>";
 				},
 				pageNumber: {}
 			}
@@ -333,179 +543,17 @@ var docElements = html.elements;
 var table = docElements.table;
 var currElement = docElements.curr;
 
-function clearSeed() {
-	addressBlock.length = 0;
-	privKeySet.length = 0;
-	utos.length = 0;
-	totalBalance = 0;
-	seedData.length = 0;
-}
-
-// ** Process HD Seed ** 
-function processSeed(prs) {
-	hdPrivateKey = new HDPrivateKey.fromSeed(prs);
-	index = 0;
-	checkSeed();
-
-	console.log("Start Processing Private Key");
-	seedPros++;
-	clearSeed();
-	
-	if(seedPros > 1){ table.clear( "#" + idNames.seedInfo ) }
-		else {
-			createTable();
-		}
-
-		hdPrivateKey = new HDPrivateKey.fromSeed(prs);
-
-		setAddresses();
-	}
-
-function setAddresses(){
-	for(var x = 0;x <= blockSize ;x++){
-		var nextPrk = getNextPrk();
-		address = nextPrk.toAddress();
-		if(index == 0){ firstSeedAddr = address.toString(); }
-		privKeySet.push(nextPrk.toWIF());
-		addressBlock.push(address.toString());
-		
-		index++;
-	}
-	setUTXOs(addressBlock);
-}
-function getNextPrk(){
-	// Derive the next address.
-	derived = hdPrivateKey.derive("m/0/0/" + index.toString());
-	var nextPrk = derived.privateKey;
-	return nextPrk
-}
-
-function checkSeed(){
-	derived = hdPrivateKey.derive("m/0/0/" + index.toString());
-}
-
-function setUTXOs(arrayOfAddresses){
-	arrayOfAddresses = getBlockAddresses(arrayOfAddresses);
-	$.get(api + "addrs/" + arrayOfAddresses + "/utxo", function( data ) {
-		extractUTOs(data);
-		checkAddrBlock();
-	})
-	.fail(function() {
-		showMessage(errMeses.networkErr);
-	});
-}
-function getBlockAddresses(arrayOfAddresses){
-	var numOfAddrInBlock = (arrayOfAddresses.length - 1);
-	arrayOfAddresses = arrayOfAddresses.slice((numOfAddrInBlock - blockSize),numOfAddrInBlock);
-	arrayOfAddresses = arrayOfAddresses.join(); // Comma seperated addrs.
-	
-	return arrayOfAddresses;
-}
-function extractUTOs(data){
-	for(x in data){
-		data[x].amount = btcToSats(data[x].amount); // Set amount to satoshis
-		utos.push(data[x]);
-	}
-}
-
-function checkAddrBlock(){
-	// Check that at least one addr in addressBlock has had money sent to it. i.e. been used.
-	var startingPoint = (addressBlock.length-blockSize); // Nubmer of Addresses - Blocksize
-	var lastPt = 0;
-	for(var counter = 0/*50 - 50 = 0;*/; counter <= blockSize; counter++){
-		lastPt = (counter + (startingPoint - 1));
-		checkAddr(addressBlock[lastPt]);
-		setTable(lastPt);
-	}
-	$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
-	if(used){
-		setAddresses();
-	} else { // If none used in block, then assume there's no more used addrs in the Seed, finish proccess.
-	finishProcessingSeed();
-	}
-}
-
-function setTable(tableIndex){
-	updateLiBxNum();
-
-	var hasFunds = false;
-	var order = matchAddress();
-	var addrLink = "<a target=\"0\" href=\"" + insightAddr + addressBlock[tableIndex] + "\">";
-	var link2 = "</a>";
-	var tableAddr = (qrCodeIcon + (addrLink + addressBlock[tableIndex] + link2) );
-	updateLiBxNum();
-
-	var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + privKeySet[tableIndex] + "</span>");
-	
-	if(typeof utos[order.indexOf(tableIndex)] === 'undefined'){var spendable = currElement.set(0);}
-	else {
-		spendable = currElement.set(utos[order.indexOf(tableIndex)].amount);
-	}
-	
-	if(spendable > 0){ hasFunds = true; }
-
-	updateTable(tableIndex,
-		tableAddr,
-		spendable,
-		tablePrk,
-		hasFunds
-		);
-}
 
 function matchAddress() {
 	var addressLocation = [];
-	addressLocation = jQuery.map( utos, function( n, i ) {
-		return addressBlock.indexOf(n.address);
+	addressLocation = jQuery.map( seed.utos, function( n, i ) {
+		return seed.addresses.indexOf(n.address);
 	});
 	return addressLocation;
 }
 
-function updateTable(seedIndex,address,amount,privateKey,hasFunds) {
-	var hdClass = "index-" + seedIndex;
-	seedData.push([seedIndex,address,amount,privateKey, "<button class=\"btn btn-link prk\">Show Private Key</button>"]);
-	seedTable.row.add(seedData[seedIndex]).draw();
-	
-	if(hasFunds) {
-		seedTable.row(seedIndex).nodes().to$().addClass( classNames.hasFunds );
-	}
-}
-
-function checkAddr(addr){
-	$.get( api + "addr/" + addr + "/totalReceived", function(data){
-		totalReceived = data;
-		unconfirmed = 0;
-		if(sweepUnconfirmed){
-			setUnconfirmed(addr);
-		} else {
-			checkIfUsed();
-		}
-	})
-	.fail(function() {
-		showMessage(errMeses.networkErr);
-	});
-}
-
-function setUnconfirmed(addr){
-	$.get( api + "addr/" + addr + "/unconfirmedBalance", function( data ) {
-		if(data >= 0) { unconfirmed = data };
-		checkIfUsed();
-	})
-	.fail(function() {
-		showMessage(errMeses.networkErr);	
-	});
-}
-
-function checkIfUsed(){
-	if((totalReceived + unconfirmed) > 0){
-		used = true;
-	} else {
-		used = false;
-	}
-}
-
 function transErr(e){
 	var response = "";
-	
 	switch(e) {
 		case empty:
 		response = emptyResponse;
@@ -515,35 +563,6 @@ function transErr(e){
 	}
 	return response;
 }
-
-function finishProcessingSeed(){
-	$(".loading-screen").addClass( classNames.noDisplay ); // Hide
-	$( "." + classNames.checkMark ).fadeIn(2000, function(){
-		$( this ).fadeOut();
-		table.setPgs(seedTable);
-		$( ".table-container" ).removeClass( classNames.noDisplay );
-	});
-	getBalance(utos);
-	minerFee = tran.getFee();
-	var totalToSend = totalBalance - minerFee;
-	if( totalToSend <= 0 ) { totalToSend = 0; }
-	var disToSend = currElement.set(totalToSend);
-	var disFee = currElement.set(minerFee);
-
-	$(".balance").html("Total To Send: " + disToSend + " <br>(Transaction Fee is " + disFee + ")" );
-	html.show( "." + classNames.sweep );
-
-	table.numOfPgs = table.getNumPgs(seedTable);
-	console.log("Finished Processing Seed");
-}
-
-function getBalance(arrayOfUtos){
-	for(x in arrayOfUtos){
-		totalBalance += arrayOfUtos[x].amount;
-	}
-	return totalBalance;
-}
-
 // ** SWEEP FUNDS ** 
 function sweepFunds(addr){
 	console.log("Start Sweep");
@@ -551,12 +570,11 @@ function sweepFunds(addr){
 	var transaction = tran.create(addr);
 	txID = broadcastTx(transaction);
 }
-
 function broadcastTx(tx){
 	insight.broadcast(tx, function(err, returnedTxId) {
 		if (err) {
 			// Handle errors...
-			showMessage(err);	
+			docElements.showMes(err);	
 		} else {
 			// Mark the transaction as broadcasted
 			console.log("Transaction sent: " + returnedTxId);
@@ -565,11 +583,9 @@ function broadcastTx(tx){
 		}
 	})
 }
-
 function btcToSats(btcAmt){
 	return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
 }
-
 function createTable() {
 	seedTable = $("#seed-info").DataTable(
 	{
@@ -586,20 +602,12 @@ function createTable() {
 		}
 	});
 }
-
 function toggleAllKeys(){
 	if(keysToggeled){
 		$(".prkText").removeClass(hideClass);
 	} else {
 		$(".prkText").addClass(hideClass);
 	}
-}
-
-function showMessage(errMessage,duration){
-	if(!duration){
-		duration = 3000; // By default, wait 3 secs.
-	}
-	Materialize.toast(errMessage,duration);
 }
 function updateLiBxNum(){
 	liBxNum++;
@@ -609,10 +617,8 @@ function updateLiBxNum(){
 function getLiBx(){
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
-
 $(function() {
 	$(".button-collapse").sideNav();
-	
 	//Handelers
 	$( ".unit-selector" ).click(function() {
 		units.selected = $( this ).text();
@@ -629,24 +635,22 @@ $(function() {
     });
 	$( "#recover-button" ).click(function() {
 		if( !$( this ).hasClass( "disabled" ) ){
-			$(".balance").text("Checking seed...");
-			$(".seed-form").addClass( classNames.noDisplay );
-			$(".loading-screen").removeClass( classNames.noDisplay ); // Show
+			docElements.loading.show();
 			setTimeout(function() {
 				var input = $("#masterSeed").val();
-				try {
+				//try {
 			        // This function can lock the UI until it starts hitting the network
-			        processSeed(input);
-			    } catch(e) {
+			        seed.process(input);
+			    /*} catch(e) {
 			    	console.log( e.message );
-			        $(".loading-screen").addClass( classNames.noDisplay ); // Hide
-			        $(".balance").text("Load Seed to Get Balance");
-			        $(".seed-form").removeClass( classNames.noDisplay );
-			        showMessage( errMeses.invalidSeed );
-			    }
+			    	docElements.loading.hide();
+			    	docElements.header.reset();
+			    	html.show(".seed-form");
+			        docElements.showMes( errMeses.invalidSeed );
+			    }*/
 			}, 500);
 		} else {
-			showMessage( errMeses.noSeed );
+			docElements.showMes( errMeses.noSeed );
 			console.log("Please input your seed first.");
 		}
 	});
@@ -654,11 +658,11 @@ $(function() {
 		html.newSeed();
 	});
 	$( "#sweep-funds" ).click(function() {
-		if( !$( this ).hasClass( "disabled" ) ){
+		if( !$(this).hasClass( "disabled" ) ) {
 			var useraddr = $("#btcAddr").val();
 			sweepFunds(useraddr);
 		} else {
-			showMessage( errMeses.noAddr );
+			docElements.showMes( errMeses.noAddr );
 		}
 	});
 	$( "." + idNames.seedInfo ).on( "click", "#toggleAllKeys", function() {
