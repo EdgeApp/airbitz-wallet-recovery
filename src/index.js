@@ -7,8 +7,8 @@ var api = "https://insight.bitpay.com/api/";
 var insightAddr = "https://insight.bitpay.com/address/";
 var sweepUnconfirmed = true;
 var HDPrivateKey = bitcore.HDPrivateKey;
-var hidePrk = "Hide Private Key", showPrk = "Show Private Key";
-var hideAllKeys = "Hide All Keys", showAllKeys = "Show All Keys";
+var hidePrk = "Hide Key", showPrk = "Show Key";
+var hideAllKeys = "Hide All", showAllKeys = "Show All";
 var keysToggeled = false; //All keys toggeled.
 var minerFee = 10000; // Default miner fee
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
@@ -117,6 +117,7 @@ var seed = {
 	clear: function() {
 		this.index = 0;
 		this.checked = $.Deferred();
+		this.addresses.length = 0;
 		block.addresses.length = 0;
 		block.keys.length = 0;
 		this.utos.length = 0;
@@ -154,11 +155,9 @@ var seed = {
 	},
 	setTable: function() {
 		if(this.seedsProcessed > 1) { // If we've made a seed before, clear previous table.
-			table.clear( "#" + idNames.seedInfo ); 
+			//table.clear( seedTable );
 		}
-		else {
-			createTable();
-		}
+		createTable();
 	},
 	setAddresses: function() { // Set next block of addresses & keys out of HDSeed
 		for(var x = 0;x <= blockSize ;x++) {
@@ -227,6 +226,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		var f = function(counter) {
 			if( counter <= blockSize ) {
 				lastPt = (counter + (startingPoint - 1));
+				console.log(lastPt);
 				seed.data.push(seed.getInfo(lastPt)); // Get seed data
 				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
@@ -366,7 +366,7 @@ var html = {
 	},
 	elements : {
 		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
-		showKeyBut: "<button class=\"btn btn-link prk\">Show Private Key</button>",
+		showKeyBut: "<button class=\"btn btn-link prk\">Show Key</button>",
 		showMes: function(errMessage,duration) {
 			if(!duration) {
 				duration = 3000; // By default, wait 3 secs.
@@ -422,7 +422,8 @@ var html = {
 			},
 			clear: function(tb) {
 				console.log("Cleared!");
-				$(tb).children("tbody").children("tr").remove();
+				tb.rows().remove().draw();
+				//$(tb).children("tbody").children("tr").remove();
 			},
 			setPg: function(tb,pageNum) { // Set pagnation to page pageNum
 				pageNum = parseInt(pageNum);			
@@ -430,7 +431,6 @@ var html = {
 			},
 			setPgs: function(tb) { // Set up pagnation to have up to 10 page buttons
 				var numberOfPages = this.getNumPgs(tb);
-				console.log(numberOfPages);
 				this.addPgNums( $( "." + classNames.pageNums ), numberOfPages );
 			},
 			addPgNums: function(numDiv, maxNum) {
@@ -538,9 +538,9 @@ var html = {
 		$( "." + classNames.head ).text(this.display.head);
 		$( "#" + this.idNames.userSeed ).val("");
 		this.show( "." + classNames.seed );
-		seedTable.destroy();
-		table.clear( "#" + idNames.seedInfo );
-		clearSeed();
+		seedTable.destroy()
+		
+;		seed.clear();
 	}
 };
 var classNames = html.classNames, idNames = html.idNames;
