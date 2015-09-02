@@ -228,6 +228,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 				lastPt = (counter + (startingPoint - 1));
 				console.log(lastPt);
 				seed.data.push(seed.getInfo(lastPt)); // Get seed data
+				console.log(seed.data[lastPt]);
 				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
 				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
@@ -423,7 +424,7 @@ var html = {
 			clear: function(tb) {
 				console.log("Cleared!");
 				tb.rows().remove().draw();
-				//$(tb).children("tbody").children("tr").remove();
+				$("#" + idNames.seedInfo).children("tbody").children("tr").remove();
 			},
 			setPg: function(tb,pageNum) { // Set pagnation to page pageNum
 				pageNum = parseInt(pageNum);			
@@ -538,9 +539,10 @@ var html = {
 		$( "." + classNames.head ).text(this.display.head);
 		$( "#" + this.idNames.userSeed ).val("");
 		this.show( "." + classNames.seed );
-		seedTable.destroy()
-		
-;		seed.clear();
+		table.clear(seedTable);
+		seedTable.destroy();
+
+		seed.clear();
 	}
 };
 var classNames = html.classNames, idNames = html.idNames;
