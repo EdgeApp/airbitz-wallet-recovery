@@ -210,7 +210,7 @@ var seed = {
 		}
 		if(spendable > 0) { hasFunds = true; }
 		var hdClass = "index-" + seed.index;
-		return [tableIndex,tableAddr,spendable,tablePrk, docElements.showKeyBut];
+		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
 	}
 }
 var block = { // A block is an array of addresses or keys of length defined by blockSize
