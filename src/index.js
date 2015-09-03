@@ -116,12 +116,12 @@ var seed = {
 	used: false,
 	clear: function() {
 		this.index = 0;
+		this.balance = 0;
 		this.checked = $.Deferred();
 		this.addresses.length = 0;
 		block.addresses.length = 0;
 		block.keys.length = 0;
 		this.utos.length = 0;
-		this.balance = 0;
 		this.data.length = 0;
 	},
 	check: function() {
@@ -132,6 +132,7 @@ var seed = {
 		this.hdKey = new HDPrivateKey.fromSeed(hdseed);
 		this.check();
 		console.log("Start Processing Private Key");
+		uto.retrieved = $.Deferred();
 		this.seedsProcessed++;
 	},
 	process: function(hdseed) {
@@ -226,9 +227,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		var f = function(counter) {
 			if( counter <= blockSize ) {
 				lastPt = (counter + (startingPoint - 1));
-				console.log(lastPt);
 				seed.data.push(seed.getInfo(lastPt)); // Get seed data
-				console.log(seed.data[lastPt]);
 				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
 				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
@@ -279,7 +278,9 @@ var block = { // A block is an array of addresses or keys of length defined by b
 var uto = {
 	retrieved: $.Deferred(),
 	get: function(addressSet) { // Lookup UTOs for set of addresses
+		//uto.retrieved = $.Deferred();
 		addressSet = block.getBlock(addressSet);
+		console.log("Checking utos of: " + addressSet);
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
 			uto.retrieved.resolve( uto.extract(data) );
