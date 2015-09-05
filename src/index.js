@@ -140,6 +140,8 @@ var seed = {
 		this.setTable();
 		this.nextBlock();
 		$.when(this.checked).done(function() {
+			console.log("All utos: " + seed.utos);
+			console.log(uto.getVal(seed.utos));
 			seed.balance = uto.getVal(seed.utos);
 			seed.show();
 			console.log("Finished Processing Seed");
@@ -178,11 +180,14 @@ var seed = {
 		return derived.privateKey;
 	},
 	nextBlock: function() { // Process next block of keys and addresses in seed.
+		uto.retrieved = $.Deferred();
 		this.setAddresses();
 		uto.get(seed.addresses); // Get utos
 		$.when(uto.retrieved).done(function(utos) {
+			//console.log(utos);
 			seed.utos = utos;
 		});
+		//console.log("All utos in seed: " + seed.utos);
 		block.checkBlock(this.addresses); // Check block of addresses if they've been used.
 		$.when( block.checked ).done( function(hasFunds) {
 			if( hasFunds ) {
@@ -202,6 +207,7 @@ var seed = {
 		var tableAddr = (qrCodeIcon + (addrLink + seed.addresses[tableIndex] + link2) );
 		updateLiBxNum();
 		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
+		console.log(order.indexOf(tableIndex));
 		if( typeof seed.utos[order.indexOf(tableIndex)] === 'undefined' ) {
 			var spendable = currElement.set(0);
 		}
@@ -283,6 +289,7 @@ var uto = {
 		console.log("Checking utos of: " + addressSet);
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
+			//console.log(uto.extract(data));
 			uto.retrieved.resolve( uto.extract(data) );
 		})
 		.fail(function() {
@@ -555,6 +562,7 @@ var currElement = docElements.curr;
 
 function matchAddress() {
 	var addressLocation = [];
+	console.log("Addres to match: " + seed.addresses );
 	addressLocation = jQuery.map( seed.utos, function( n, i ) {
 		return seed.addresses.indexOf(n.address);
 	});
