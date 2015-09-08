@@ -17,11 +17,11 @@
 <body>
   <!-- Dropdown Structure -->
     <ul id="units" class="dropdown-content">
-        <li><a class="unit-selector btc-unit" href="#!">BTC</a></li>
-        <li><a class="unit-selector usd-unit" href="#!">USD</a></li>
-        <li><a class="unit-selector mBTC-unit" href="#!">mBTC</a></li>
-        <li class="selected-unit"><a class="unit-selector bits-unit" href="#!">bits</a></li>
-        <li><a class="unit-selector satoshis-unit" href="#!">Satoshis</a></li>
+        <li><a class="unit-selector btc-unit" data-action="select-unit" href="#!">BTC</a></li>
+        <li><a class="unit-selector usd-unit" data-action="select-unit" href="#!">USD</a></li>
+        <li><a class="unit-selector mBTC-unit" data-action="select-unit" href="#!">mBTC</a></li>
+        <li class="selected-unit"><a class="unit-selector bits-unit" data-action="select-unit" href="#!">bits</a></li>
+        <li><a class="unit-selector satoshis-unit" data-action="select-unit" href="#!">Satoshis</a></li>
         <li class="divider"></li>
         <li><a class="selected" href="#!">bits</a></li>
     </ul>
@@ -53,7 +53,7 @@
         <center>
             <form class="search-form hide-on-med-and-down">
               <div class="input-field">
-                <input id="search" type="search" placeholder="Search Seed" required>
+                <input id="search" type="search" data-action="search" placeholder="Search Seed" required>
                 <label for="search"><i class="material-icons">search</i></label>
               </div>
             </form>
@@ -66,18 +66,18 @@
                 <h2 class="header header-brand balance">Load Seed to Get Balance</h2>
                 <div class="seed-form">
                     <div class="input-field long-input">
-                      <input id="masterSeed" type="text" class="validate">
+                      <input id="masterSeed" data-action="enableLoad" type="text" class="validate">
                       <label for="icon_prefix">Wallet Master Seed</label>
                     </div>
-                    <a id="recover-button" class="btn btn-large disabled">Load Seed<i class="material-icons right">play_arrow</i></a>
+                    <a id="recover-button" data-action="recover" class="btn btn-large disabled">Load Seed<i class="material-icons right">play_arrow</i></a>
                 </div>
                 <div class="sweep-form gone">
                     <div class="input-field long-input">
-                      <input id="btcAddr" type="text" class="validate">
+                      <input id="btcAddr" data-action="enableSweep" type="text" class="validate">
                       <label for="icon_prefix">Bitcoin Address</label>
                     </div>
-                    <a class="new-seed btn btn-large waves-effect waves-light">Load New Seed<i class="material-icons right">replay</i></a>
-                    <a id="sweep-funds" class="btn btn-large disabled">Sweep Funds<i class="material-icons right">play_arrow</i></a>
+                    <a class="new-seed btn btn-large waves-effect waves-light" data-action="new-seed">Load New Seed<i class="material-icons right">replay</i></a>
+                    <a id="sweep-funds" data-action="sweep" class="btn btn-large disabled">Sweep Funds<i class="material-icons right">play_arrow</i></a>
                 </div>
                 <div class="preloader-wrapper big active loading-screen gone">
                    <div class="spinner-layer spinner-blue-only">
