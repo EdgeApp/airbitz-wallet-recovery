@@ -239,7 +239,6 @@ var seed = {
 	},
 	getInfo: function(tableIndex) {
 		updateLiBxNum();
-		var hasFunds = false;
 		var spendable = 0;
 		var addrLink = "<a target=\"0\" href=\"" + insightAddr + seed.addresses[tableIndex] + "\">";
 		var link2 = "</a>";
@@ -251,18 +250,8 @@ var seed = {
 		} else {
 			spendable = currElement.set(seed.utos[0][tableIndex]);
 			var thisAddr = seed.addresses[tableIndex];
-			console.log( uto.find(seed.addresses[tableIndex],seed.utos[0]) );
-			console.log("spendable: " + seed.utos[0][tableIndex]);
 		}
-		/*
-		var order = block.match(seed.utos, seed.addresses);
-		if( typeof seed.utos[0][order.indexOf(tableIndex)] === 'undefined' ) {
-			var spendable = currElement.set(0);
-		}
-		else {
-			spendable = currElement.set(seed.utos[0][order.indexOf(tableIndex)].amount);
-		}*/
-		if(spendable > 0) { hasFunds = true; }
+		console.log(spendable);
 		var hdClass = "index-" + seed.index;
 		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
 	}
