@@ -442,7 +442,7 @@ var html = {
 	},
 	elements : {
 		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
-		showKeyBut: "<button class=\"btn btn-link prk\">Show Key</button>",
+		showKeyBut: "<button class=\"btn btn-link prk indiv-key-butt\">Show Key</button>",
 		showMes: function(errMessage,duration) {
 			if(!duration) {
 				duration = 3000; // By default, wait 3 secs.
@@ -670,10 +670,12 @@ function createTable() {
 	});
 }
 function toggleAllKeys() {
-	if(keysToggeled){
+	if(keysToggeled) {
 		$(".prkText").removeClass(hideClass);
+		$(".indiv-key-butt").text(hidePrk);
 	} else {
 		$(".prkText").addClass(hideClass);
+		$(".indiv-key-butt").text(showPrk);
 	}
 }
 function updateLiBxNum() {
