@@ -260,7 +260,10 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	totalReceived: 0,
 	totalUnconfirmed: 0,
 	checked: $.Deferred(),
+	isSet: $.Deferred(),
 	check: function(addressSet) { // Check if block has been used.
+		console.log("Checking now.");
+		console.log(seed.utos);
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
 		var lastPt = 0;
 		this.reset();
@@ -295,10 +298,14 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		return array;
 	},
 	process: function() {
-		this.set();
-		this.check(seed.addresses);
+		block.isSet = $.Deferred();
+		block.set();
+		$.when(block.isSet.retrieved).done(function() {
+			block.check(seed.addresses);
+		})
 	},
 	set: function() { // Set utos and address for block
+		console.log("Setting");
 		uto.retrieved = $.Deferred();
 		seed.setAddresses();
 		uto.get(seed.addresses); // Get utos
@@ -337,7 +344,6 @@ var uto = {
 		addressSet = block.getBlock(addressSet);
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
-			//console.log(uto.extract(data));
 			uto.retrieved.resolve( uto.extract(data) );
 		})
 		.fail(function() {
