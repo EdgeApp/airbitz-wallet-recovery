@@ -502,6 +502,7 @@ var html = {
 			},
 			addPgNums: function(numDiv, maxNum) {
 				numDiv.html(""); // Make sure there's no numbered pagnation buttons.
+				this.addPgNums.didrun = false;
 				for(var x = 0; x <= 10 && x <= maxNum; x++) { // Max 10 #'ed buttons
 					if(!this.addPgNums.didrun) {
 						numDiv.html(table.firstPg);
