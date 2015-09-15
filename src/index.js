@@ -233,12 +233,19 @@ var seed = {
 		var tableAddr = (qrCodeIcon + (addrLink + seed.addresses[tableIndex] + link2) );
 		updateLiBxNum();
 		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
-		if( typeof seed.utos === 'undefined' || isNaN(seed.utos) ) {
+		if( typeof seed.utos === 'undefined' ) {
+			console.log("no utos");
 			spendable = currElement.set(0);
 		} else {
-			console.log("UTOS ARE HERE" + seed.addresses[tableIndex]);
-			spendable = currElement.set(seed.utos[tableIndex]);
 			var thisAddr = seed.addresses[tableIndex];
+			console.log("Utos for address: " + thisAddr);
+			for(x in seed.utos) {
+				for(y in seed.utos[x]) {
+					if(thisAddr == seed.utos[x][y].address){
+						spendable += currElement.set(seed.utos[x][y].amount);
+					}
+				}
+			}
 		}
 		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
 	}
