@@ -233,10 +233,11 @@ var seed = {
 		var tableAddr = (qrCodeIcon + (addrLink + seed.addresses[tableIndex] + link2) );
 		updateLiBxNum();
 		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
-		if( typeof seed.utos[0] === 'undefined' || isNaN(seed.utos[0]) ) {
+		if( typeof seed.utos === 'undefined' || isNaN(seed.utos) ) {
 			spendable = currElement.set(0);
 		} else {
-			spendable = currElement.set(seed.utos[0][tableIndex]);
+			console.log("UTOS ARE HERE" + seed.addresses[tableIndex]);
+			spendable = currElement.set(seed.utos[tableIndex]);
 			var thisAddr = seed.addresses[tableIndex];
 		}
 		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
@@ -363,8 +364,10 @@ var uto = {
 	},
 	getVal: function(utoSet) {
 		var utoVal = 0;
-		for(x in utoSet[0]) {
-			utoVal += utoSet[0][x].amount;
+		for(x in utoSet) {
+			for(y in utoSet[x]){
+				utoVal += utoSet[x][y].amount;
+			}
 		}
 		return utoVal;
 	}
