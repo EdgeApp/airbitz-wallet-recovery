@@ -245,7 +245,7 @@ var seed = {
 		var tableAddr = (qrCodeIcon + (addrLink + seed.addresses[tableIndex] + link2) );
 		updateLiBxNum();
 		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
-		if( typeof seed.utos[0] === 'undefined' ) {
+		if( typeof seed.utos[0] === 'undefined' || isNaN(seed.utos[0]) ) {
 			spendable = currElement.set(0);
 		} else {
 			spendable = currElement.set(seed.utos[0][tableIndex]);
