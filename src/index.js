@@ -25,7 +25,6 @@ var errMeses = {
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
-
 var actions = {
 	"select-unit": function (event) {
 		units.selected = $( this ).text();
@@ -80,7 +79,6 @@ var tran = {
 		.to(toAddr, (totalBalance - minerFee))
 		.fee(minerFee)
 		.sign(privKeySet);
-
 		return tran;
 	},
 	sign : function() {}, // TODO Sign a transaction
@@ -88,7 +86,6 @@ var tran = {
 		var tran = new bitcore.Transaction()
 		.from(utos)
 		.to(firstSeedAddr, amount);
-
 		return tran._estimateFee();
 	}
 };
@@ -227,15 +224,6 @@ var seed = {
 	},
 	nextBlock: function() { // Process next block of keys and addresses in seed.
 		block.process(); // Process block
-		$.when( block.checked ).done( function(hasFunds) {
-			if ( hasFunds ) { // If the block had money
-				console.log("Next Block");
-				seed.nextBlock(); // Check next block
-			} else {
-				block.process();
-				seed.checked.resolve(); // Finish checking
-			}
-		});
 	},
 	getInfo: function(tableIndex) {
 		updateLiBxNum();
@@ -257,6 +245,7 @@ var seed = {
 var block = { // A block is an array of addresses or keys of length defined by blockSize
 	addresses: {},
 	keys: {},
+	last: false,
 	totalReceived: 0,
 	totalUnconfirmed: 0,
 	checked: $.Deferred(),
@@ -280,10 +269,12 @@ var block = { // A block is an array of addresses or keys of length defined by b
 					block.totalUnconfirmed += unconfirmed[0];
 					checked++;
 					if( checked > blockSize ) { // Done checking all addresses in addressSet
-						if( block.getTotal() > 0 ) {
-							block.checked.resolve(true);
+						if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
+							console.log("Next Block");
+							block.process(); // Check next block
 						} else {
-							block.checked.resolve(false);
+							block.last = true;
+							seed.checked.resolve(); // Finish checking
 						}
 					}
 				});
@@ -300,7 +291,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	process: function() {
 		block.isSet = $.Deferred();
 		block.set();
-		$.when(block.isSet.retrieved).done(function() {
+		$.when(block.isSet).done(function() {
 			block.check(seed.addresses);
 		})
 	},
@@ -313,6 +304,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 			if(!(utos === undefined || utos.length == 0)) {
 				seed.utos.push(utos);
 			}
+			block.isSet.resolve();
 		});
 	},
 	getTotal: function() {
@@ -333,6 +325,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	reset: function() {
 		var lastPt = 0;
 		this.checked = $.Deferred();
+		this.last = false;
 		block.totalReceived = 0;
 		block.totalUnconfirmed = 0;
 	}
@@ -614,7 +607,6 @@ var html = {
 		this.show( "." + classNames.seed );
 		table.clear(seedTable);
 		seedTable.destroy();
-
 		seed.clear();
 	}
 };
@@ -651,7 +643,6 @@ function broadcastTx(tx){
 		}
 	})
 }
-
 function createTable() {
 	seedTable = $("#seed-info").DataTable(
 	{
