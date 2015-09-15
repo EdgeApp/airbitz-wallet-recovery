@@ -127,7 +127,7 @@ var units = {
 				break;
 			case "USD":
 				this.USD();
-				unitAmt = unitAmt.to(exchangeRate) + spacing + this.names[4];
+				unitAmt = unitAmt.to(exchangeRate) + " " + this.names[4];
 				break;
 			default:
 				break;
@@ -251,8 +251,6 @@ var seed = {
 			spendable = currElement.set(seed.utos[0][tableIndex]);
 			var thisAddr = seed.addresses[tableIndex];
 		}
-		console.log(spendable);
-		var hdClass = "index-" + seed.index;
 		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
 	}
 };
@@ -618,7 +616,6 @@ var hideClass = classNames.hide;
 var docElements = html.elements;
 var table = docElements.table;
 var currElement = docElements.curr;
-
 function transErr(e) {
 	var response = "";
 	switch(e) {
@@ -640,11 +637,8 @@ function sweepFunds(addr) {
 function broadcastTx(tx){
 	insight.broadcast(tx, function(err, returnedTxId) {
 		if (err) {
-			// Handle errors...
 			docElements.showMes(err);	
-		} else {
-			// Mark the transaction as broadcasted
-			console.log("Transaction sent: " + returnedTxId);
+		} else { // Mark the transaction as broadcasted
 			Materialize.toast("Transaction sent: " + returnedTxId,5000);
 			return returnedTxId;
 		}
@@ -688,10 +682,7 @@ $(function() {
 	$("a[data-action]").on("click", function (event) {
 	  var link = $(this),
 	      action = link.data("action");
-
 	  event.preventDefault();
-
-	  // If there's an action with the given name, call it
 	  if( typeof actions[action] === "function" ) {
 	    actions[action].call(this, event);
 	  }
@@ -702,7 +693,7 @@ $(function() {
 		event.preventDefault();
 		if( typeof actions[action] === "function" ) {
 	    	actions[action].call(this, event);
-	  }
+	    }
 	});
 	$( "." + idNames.seedInfo ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
