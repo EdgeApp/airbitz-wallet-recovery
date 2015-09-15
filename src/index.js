@@ -234,18 +234,18 @@ var seed = {
 		updateLiBxNum();
 		var tablePrk = ("<span class=\"invisible prkText\">" + qrCodeIcon + seed.keys[tableIndex] + "</span>");
 		if( typeof seed.utos === 'undefined' ) {
-			console.log("no utos");
 			spendable = currElement.set(0);
 		} else {
 			var thisAddr = seed.addresses[tableIndex];
-			console.log("Utos for address: " + thisAddr);
 			for(x in seed.utos) {
 				for(y in seed.utos[x]) {
 					if(thisAddr == seed.utos[x][y].address){
-						spendable += currElement.set(seed.utos[x][y].amount);
+						console.log(seed.utos[x][y].amount);
+						spendable += (seed.utos[x][y].amount);
 					}
 				}
 			}
+			spendable = currElement.set(spendable);
 		}
 		return [(tableIndex+1),tableAddr,spendable,tablePrk, docElements.showKeyBut];
 	}
