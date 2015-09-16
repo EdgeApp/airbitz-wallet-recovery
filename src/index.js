@@ -74,11 +74,12 @@ var actions = {
 };
 var tran = {
 	create : function(toAddr,utos) {
+		var minerFee = tran.getFee(seed.utos, seed.balance);
 		tran = new bitcore.Transaction()
 		.from(utos)
-		.to(toAddr, (totalBalance - minerFee))
+		.to(toAddr, (seed.balance - minerFee))
 		.fee(minerFee)
-		.sign(privKeySet);
+		.sign(seed.keys);
 		return tran;
 	},
 	sign : function() {}, // TODO Sign a transaction
@@ -640,7 +641,7 @@ function transErr(e) {
 function sweepFunds(addr) {
 	console.log("Start Sweep");
 	var txID = "No ID";
-	var transaction = tran.create(addr);
+	var transaction = tran.create(addr, seed.utos);
 	txID = broadcastTx(transaction);
 }
 function broadcastTx(tx){
