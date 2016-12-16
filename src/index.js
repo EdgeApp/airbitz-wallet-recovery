@@ -43,6 +43,7 @@ var actions = {
 	  		    	docElements.loading.hide();
 	  		    	docElements.header.reset();
 	  		    	html.show(".seed-form");
+	  		    	$( "#" + html.idNames.userSeed).addClass("invalid"); // Add a red hue indicating there's an issue with the seed.
 	  		        docElements.showMes( errMeses.invalidSeed );
 	  		    }
 	  		}, 500);
