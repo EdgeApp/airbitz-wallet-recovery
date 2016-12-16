@@ -616,6 +616,7 @@ var html = {
 		$( "." + classNames.head ).text(this.display.head);
 		$( "#" + this.idNames.userSeed ).val("");
 		this.show( "." + classNames.seed );
+		$( "#" + this.idNames.load ).addClass("disabled");
 		table.clear(seedTable);
 		seedTable.destroy();
 		seed.clear();
