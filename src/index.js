@@ -417,7 +417,8 @@ var html = {
 		load: "recover-button",
 		sweep: "sweep-funds",
 		userAddr: "btcAddr",
-		qrModal: "qr-modal"
+		qrModal: "qr-modal",
+		seedLabel: "masterSeedLabel"
 	},
 	classNames : {
 		head: "balance",
@@ -616,7 +617,8 @@ var html = {
 		$( "." + classNames.head ).text(this.display.head);
 		$( "#" + this.idNames.userSeed ).val("");
 		this.show( "." + classNames.seed );
-		$( "#" + this.idNames.load ).addClass("disabled");
+		$( "#" + this.idNames.load ).addClass("disabled"); // Make the "Load Seed" button disabled
+		$( "#" + this.idNames.seedLabel).removeClass("active"); // Set the seed input label to default position
 		table.clear(seedTable);
 		seedTable.destroy();
 		seed.clear();
