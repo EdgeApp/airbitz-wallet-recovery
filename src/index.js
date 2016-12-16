@@ -21,7 +21,7 @@ var liBxNam = qrIndx + liBxNum; //Lightbox name
 var qrCodeIcon = getLiBx();
 var errMeses = {
 	noSeed: "Please input a seed first",
-	noAddr: "Please input your address",
+	noAddr: "Please input a valid address",
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
@@ -43,7 +43,7 @@ var actions = {
 	  		    	docElements.loading.hide();
 	  		    	docElements.header.reset();
 	  		    	html.show(".seed-form");
-	  		    	$( "#" + html.idNames.userSeed).addClass("invalid"); // Add a red hue indicating there's an issue with the seed.
+	  		    	$( "#" + html.idNames.userSeed).addClass("invalid"); // Add a red hue indicating there's an error
 	  		        docElements.showMes( errMeses.invalidSeed );
 	  		    }
 	  		}, 500);
@@ -75,13 +75,19 @@ var actions = {
 };
 var tran = {
 	create : function(toAddr,utos) {
-		var minerFee = tran.getFee(seed.utos, seed.balance);
-		tran = new bitcore.Transaction()
-		.from(utos)
-		.to(toAddr, (seed.balance - minerFee))
-		.fee(minerFee)
-		.sign(seed.keys);
-		return tran;
+		try {
+			var minerFee = tran.getFee(seed.utos, seed.balance);
+			tran = new bitcore.Transaction()
+			.from(utos)
+			.to(toAddr, (seed.balance - minerFee))
+			.fee(minerFee)
+			.sign(seed.keys);
+			return tran;
+		} catch(e) {
+			console.log( e.message );
+			$( "#" + html.idNames.userAddr).addClass("invalid"); // Add a red hue indicating there's an error
+			docElements.showMes( errMeses.noAddr );
+		}
 	},
 	sign : function() {}, // TODO Sign a transaction
 	getFee : function(utos,amount) { // Get estimated transaction fee
