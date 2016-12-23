@@ -28,14 +28,14 @@ var errMeses = {
 var actions = {
 	"select-unit": function (event) {
 		units.selected = $( this ).text();
-	  	units.update(this);
-	  },
+		units.update(this);
+	},
 	recover: function (event) { 
-	  	if( !$( this ).hasClass( "disabled" ) ){
-	  		docElements.loading.show();
-	  		setTimeout(function() {
-	  			var input = $("#masterSeed").val();
-	  			try {
+		if( !$( this ).hasClass( "disabled" ) ){
+			docElements.loading.show();
+			setTimeout(function() {
+				var input = $("#masterSeed").val();
+				try {
 	  		        // This function can lock the UI until it starts hitting the network
 	  		        seed.process(input);
 	  		    } catch(e) {
@@ -44,34 +44,34 @@ var actions = {
 	  		    	docElements.header.reset();
 	  		    	html.show(".seed-form");
 	  		    	$( "#" + html.idNames.userSeed).addClass("invalid"); // Add a red hue indicating there's an error
-	  		        docElements.showMes( errMeses.invalidSeed );
+	  		    	docElements.showMes( errMeses.invalidSeed );
 	  		    }
 	  		}, 500);
-	  	} else {
-	  		docElements.showMes( errMeses.noSeed );
-	  		console.log("Please input your seed first.");
-	  	}
-  },
-  "new-seed": function(event) {
-  	html.newSeed();
-  },
-  sweep: function(event) {
-  	if( !$(this).hasClass( "disabled" ) ) {
-  		var useraddr = $("#btcAddr").val();
-  		sweepFunds(useraddr);
-  	} else {
-  		docElements.showMes( errMeses.noAddr );
-  	}
-  },
-  search: function(event) {
-  	table.search(seedTable, $( this ).val() );
-  },
-  enableLoad: function(event) {
-  	html.enableInput(this, "#" + idNames.load );
-  },
-  enableSweep: function(event) {
-  	html.enableInput(this, "#" + idNames.sweep );
-  }
+		} else {
+			docElements.showMes( errMeses.noSeed );
+			console.log("Please input your seed first.");
+		}
+	},
+	"new-seed": function(event) {
+		html.newSeed();
+	},
+	sweep: function(event) {
+		if( !$(this).hasClass( "disabled" ) ) {
+			var useraddr = $("#btcAddr").val();
+			sweepFunds(useraddr);
+		} else {
+			docElements.showMes( errMeses.noAddr );
+		}
+	},
+	search: function(event) {
+		table.search(seedTable, $( this ).val() );
+	},
+	enableLoad: function(event) {
+		html.enableInput(this, "#" + idNames.load );
+	},
+	enableSweep: function(event) {
+		html.enableInput(this, "#" + idNames.sweep );
+	}
 };
 var tran = {
 	create : function(toAddr,utos) {
@@ -104,40 +104,45 @@ var units = {
 	bits:"/100",
 	mBTC:"/100000",
 	BTC:"/100000000",
-	USD: function(){
-		 $.ajax({
-		 	url: "https://api.coinbase.com/v2/prices/buy?currency=USD", 
-		 	type: "GET",
-		 	crossDomain: true,
-		 	success: function( data ){
-				exchangeRate = data.amount;
+	USD: 1000, // Default 1000 price
+	unitAmt: "",
+	getUSD: function(){
+		$.ajax({
+			url: "https://api.coinbase.com/v2/prices/buy?currency=USD", 
+			type: "GET",
+			crossDomain: true,
+			success: function( data ){
+				usdReq = data;
+				units.USD = parseInt(data.data.amount);
 			},
 			error: function() {
 			//docElements.showMes(errMeses.networkErr);
-			}
-		});
+		}
+	});
 		return exchangeRate;
 	},
 	convert: function(satsAmt){
-		var unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
+		this.unitAmt = bitcore.Unit.fromSatoshis(satsAmt);
 		switch(this.selected){
 			case "bits":
-				unitAmt = unitAmt.bits + " " + this.names[1];
-				break;
+			this.unitAmt = this.unitAmt.bits + " " + this.names[1];
+			break;
 			case "mBTC":
-				unitAmt = unitAmt.mBTC + " " + this.names[2];
-				break;
+			this.unitAmt = this.unitAmt.mBTC + " " + this.names[2];
+			break;
 			case "BTC":
-				unitAmt = unitAmt.BTC + " " + this.names[3];
-				break;
+			this.unitAmt = this.unitAmt.BTC + " " + this.names[3];
+			break;
 			case "USD":
-				this.USD();
-				unitAmt = unitAmt.to(exchangeRate) + " " + this.names[4];
-				break;
+			this.getUSD();
+			console.log("The bitcoin price is: " + units.USD);
+			this.unitAmt = bitcore.Unit.fromSatoshis(this.unitAmt).to(this.USD) + " " + this.names[4];
+			console.log(this.unitAmt);
+			break;
 			default:
-				break;
+			break;
 		}
-		return unitAmt;
+		return this.unitAmt;
 	},
 	btcToSats: function(btcAmt) {
 		return bitcore.Unit.fromBTC(btcAmt).toSatoshis()
@@ -192,27 +197,31 @@ var seed = {
 		this.reset(hdseed); // Reset seed properties for new seed
 		this.setTable();
 		this.nextBlock();
+		seed.showDetails();
 		$.when(this.checked).done(function() {
+			seed.showSummary();
 			seed.balance = uto.getVal(seed.utos);
-			seed.show();
 			console.log("Finished Processing Seed");
 		});
 	},
-	show: function() {
-		minerFee = tran.getFee(seed.utos, seed.balance);
-		table.setPgs(seedTable);
-		$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
-		docElements.loading.hide(); // Stop loading screen.
-		docElements.header.show(seed.balance, minerFee); // Show main header text
+	showDetails: function() {
 		html.show( "." + classNames.info );
-		table.numOfPgs = table.getNumPgs(seedTable);
+		$( "#" + idNames.seedInfo ).removeClass(hideClass); // Show table
+		table.numOfPgs = table.getNumPgs(seedTable); // Add table number
+	},
+	showSummary: function() {
+		minerFee = tran.getFee(seed.utos, seed.balance); // Get miner fee
+		docElements.loading.hide(); // Stop loading screen.
+		// Show main header text
+		docElements.header.show(seed.balance, minerFee);
+		table.setPgs(seedTable);
 	},
 	setTable: function() {
 		if(this.seedsProcessed > 1) { // If we've made a seed before, clear previous table.
 			//table.clear( seedTable );
-		}
-		createTable();
-	},
+	}
+	createTable();
+},
 	setAddresses: function() { // Set next block of addresses & keys out of HDSeed
 		for(var x = 0;x <= blockSize ;x++) {
 			this.setAddr();
@@ -370,12 +379,12 @@ var uto = {
 	find: function(address, utoSet) {
 		console.log("Find: " + address);
 		var attr = 'address';
-	    for(var i = 0; i < utoSet.length; i += 1) {
-	    	console.log(utoSet[i][attr]);
-	        if(utoSet[i][attr] === address) {
-	            return i;
-	        }
-	    }
+		for(var i = 0; i < utoSet.length; i += 1) {
+			console.log(utoSet[i][attr]);
+			if(utoSet[i][attr] === address) {
+				return i;
+			}
+		}
 	},
 	getVal: function(utoSet) {
 		var utoVal = 0;
@@ -567,7 +576,7 @@ var html = {
 				getInactivePage: function(pageNum) {
 					this.pageNumber = pageNum;
 					return "<li class=\"waves-effect page-num page-" + this.pageNumber + "\" page=\""
-							+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>";
+					+ this.pageNumber + "\"><a href=\"#!\">" + this.pageNumber + "</a></li>";
 				},
 				pageNumber: {}
 			}
@@ -675,8 +684,8 @@ function createTable() {
 			toggleAllKeys();
 		},
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-	    	$('td:eq(1)', nRow).addClass( "bitcoin-address" );
-	    	$('td:eq(3)', nRow).addClass( "bitcoin-private-key" );
+			$('td:eq(1)', nRow).addClass( "bitcoin-address" );
+			$('td:eq(3)', nRow).addClass( "bitcoin-private-key" );
 		}
 	});
 }
@@ -698,23 +707,24 @@ function getLiBx() {
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
 $(function() {
+	units.getUSD(); // Get USD Price
 	$(".button-collapse").sideNav();
 	//Handelers
 	$("a[data-action]").on("click", function (event) {
-	  var link = $(this),
-	      action = link.data("action");
-	  event.preventDefault();
-	  if( typeof actions[action] === "function" ) {
-	    actions[action].call(this, event);
-	  }
+		var link = $(this),
+		action = link.data("action");
+		event.preventDefault();
+		if( typeof actions[action] === "function" ) {
+			actions[action].call(this, event);
+		}
 	});
 	$("input[data-action]").on("input", function (event) {
 		var link = $(this),
-			action = link.data("action");
+		action = link.data("action");
 		event.preventDefault();
 		if( typeof actions[action] === "function" ) {
-	    	actions[action].call(this, event);
-	    }
+			actions[action].call(this, event);
+		}
 	});
 	$( "." + idNames.seedInfo ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
