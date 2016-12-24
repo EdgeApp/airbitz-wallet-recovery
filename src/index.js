@@ -27,6 +27,7 @@ var errMeses = {
 }
 var actions = {
 	"select-unit": function (event) {
+		console.log("Select unit");
 		units.selected = $( this ).text();
 		units.update(this);
 	},
@@ -134,10 +135,8 @@ var units = {
 			this.unitAmt = this.unitAmt.BTC + " " + this.names[3];
 			break;
 			case "USD":
-			this.getUSD();
-			console.log("The bitcoin price is: " + units.USD);
-			this.unitAmt = bitcore.Unit.fromSatoshis(this.unitAmt).to(this.USD) + " " + this.names[4];
-			console.log(this.unitAmt);
+			this.getUSD(); // Fetch the price of USD
+			this.unitAmt = bitcore.Unit.fromSatoshis(satsAmt).to(this.USD) + " " + this.names[4];
 			break;
 			default:
 			break;
@@ -472,7 +471,7 @@ var html = {
 				return "<span class=\"" + html.classNames.currenyUnit + "\"" + "sats=\"" + sats + "\">";
 			},
 			end: "</span>",
-			set: function (sats) {
+			set: function (sats) { // Returns currency in span class to indentify as currency text to be easily converted later
 				return this.start(sats) + units.convert(sats) + this.end;
 			}
 		},
