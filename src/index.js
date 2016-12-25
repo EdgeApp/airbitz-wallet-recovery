@@ -27,10 +27,12 @@ var errMeses = {
 	networkErr: "Network Connection Error"
 }
 
+/*
 var code = new Mnemonic('select scout crash enforce riot rival spring whale hollow radar rule sentence');
+console.log("The code is: " + Mnemonic.isValid(code));
 var xpriv1 = code.toHDPrivateKey(); // no passphrase
 console.log(xpriv1.xprivkey);
-
+*/
 
 var actions = {
 	"select-unit": function (event) {
@@ -44,8 +46,20 @@ var actions = {
 			setTimeout(function() {
 				var input = $("#masterSeed").val();
 				try {
-	  		        // This function can lock the UI until it starts hitting the network
-	  		        seed.process(input);
+					if ( input.split(" ").length > 1 ) { // Probably is a mnemonic, convert it to a private seed first.
+						seed.usesMne = true;
+						console.log("It's more than one word.");
+						var userMnemonic = new Mnemonic(input);
+						console.log(userMnemonic.toHDPrivateKey());
+						var userSeed = userMnemonic.toHDPrivateKey().xprivkey;
+
+						seed.process(userSeed);
+					} else { // Seed in hex format or other format we can work with straight away.
+						seed.usesMne = false;
+						console.log("Less than one word.");
+						// This function can lock the UI until it starts hitting the network
+	  		        	seed.process(input);
+					}
 	  		    } catch(e) {
 	  		    	console.log( e.message );
 	  		    	docElements.loading.hide();
@@ -175,6 +189,7 @@ var seed = {
 	balance: {},
 	utos: [],
 	hdKey: {},
+	usesMne: false, // Different type of seed to check address with
 	keys: [],
 	addresses: [],
 	used: false,
@@ -193,7 +208,11 @@ var seed = {
 	},
 	reset: function(hdseed) {
 		this.clear();
-		this.hdKey = new HDPrivateKey.fromSeed(hdseed);
+		if(this.usesMne) {
+			this.hdKey = new HDPrivateKey(hdseed);
+		} else {
+			this.hdKey = new HDPrivateKey.fromSeed(hdseed);	
+		}
 		this.check();
 		console.log("Start Processing Private Key");
 		uto.retrieved = $.Deferred();
@@ -242,7 +261,11 @@ var seed = {
 		this.addresses.push(address.toString());
 	},
 	nextKey: function(hdPrivateKey) { // Get next private key out of HDSeed
-		var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+		if(this.usesMne) {
+			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+		} else {
+			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+		}
 		return derived.privateKey;
 	},
 	nextBlock: function() { // Process next block of keys and addresses in seed.
