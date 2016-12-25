@@ -1,6 +1,7 @@
 // Utility to Recover funds from an Airbitz HD Seed.
 var bitcore = require('bitcore');
 var Insight = require('bitcore-explorers').Insight;
+var Mnemonic = require('bitcore-mnemonic');
 var insight = new Insight();
 
 var api = "https://insight.bitpay.com/api/";
@@ -25,6 +26,12 @@ var errMeses = {
 	invalidSeed: "Invalid Seed",
 	networkErr: "Network Connection Error"
 }
+
+var code = new Mnemonic('select scout crash enforce riot rival spring whale hollow radar rule sentence');
+var xpriv1 = code.toHDPrivateKey(); // no passphrase
+console.log(xpriv1.xprivkey);
+
+
 var actions = {
 	"select-unit": function (event) {
 		console.log("Select unit");
