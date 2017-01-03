@@ -261,8 +261,13 @@ var seed = {
 		this.addresses.push(address.toString());
 	},
 	nextKey: function(hdPrivateKey) { // Get next private key out of HDSeed
-		if(this.usesMne) {
-			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
+		if(this.usesMne) { // If the seed is mnemonic derrived
+			// BIP 44 
+			// m / purpose' / coin_type' / account' / change / address_index
+			var derived = this.hdKey.derive("m/44'/0'/0'/0/" + this.index.toString());
+			console.log("m/44'/0'/0'/0/" + this.index.toString());
+			console.log(derived.privateKey.toString());
+			console.log(derived.privateKey.toAddress().toString());
 		} else {
 			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
 		}
