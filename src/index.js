@@ -287,11 +287,13 @@ var seed = {
 		if( typeof seed.utos === 'undefined' ) {
 			spendable = currElement.set(0);
 		} else {
+			//console.log("Table index: " + tableIndex);
 			var thisAddr = seed.addresses[tableIndex];
+			//console.log(thisAddr);
 			for(x in seed.utos) {
 				for(y in seed.utos[x]) {
 					if(thisAddr == seed.utos[x][y].address){
-						console.log(seed.utos[x][y].amount);
+						console.log("UTOs are: " + seed.utos[x][y].amount);
 						spendable += (seed.utos[x][y].amount);
 					}
 				}
@@ -310,7 +312,8 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	checked: $.Deferred(),
 	isSet: $.Deferred(),
 	check: function(addressSet) { // Check if block has been used.
-		console.log("Checking now.");
+		console.log("Checking address set now.");
+		console.log(addressSet);
 		console.log(seed.utos);
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
 		var lastPt = 0;
@@ -342,9 +345,13 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		};
 		f(0);
 	},
-	getBlock: function(array) {
-		array = array.slice((array.length - blockSize),array.length); // get last block
+	getBlock: function(array) { // Split array values into csv
+		console.log("Splitting: " + array);
+		console.log("From: " + ((array.length-1) - blockSize));
+		console.log("To: " + array.length);
+		array = array.slice(((array.length-1) - blockSize),array.length); // get last block
 		array = array.join(); // Comma seperated addrs.
+		console.log("Split array: " + array);
 		return array;
 	},
 	process: function() {
@@ -394,6 +401,7 @@ var uto = {
 	get: function(addressSet) { // Lookup UTOs for set of addresses
 		//uto.retrieved = $.Deferred();
 		addressSet = block.getBlock(addressSet);
+		console.log(api + "addrs/" + addressSet + "/utxo");
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
 			uto.retrieved.resolve( uto.extract(data) );
@@ -404,7 +412,10 @@ var uto = {
 	},
 	extract: function(utoSet) { // 
 		var extracted = [];
+		console.log("UTO set: " + utoSet);
 		for(x in utoSet) {
+			console.log(x);
+			console.log("UTO address: " + utoSet[x].address);
 			utoSet[x].amount = units.btcToSats(utoSet[x].amount); // Set amount to satoshis
 			extracted.push(utoSet[x]);
 		}
