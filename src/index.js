@@ -11,7 +11,7 @@ var HDPrivateKey = bitcore.HDPrivateKey;
 var hidePrk = "Hide Key", showPrk = "Show Key";
 var hideAllKeys = "Hide All", showAllKeys = "Show All";
 var keysToggeled = false; //All keys toggeled.
-var minerFee = 10000; // Default miner fee
+var minerFee = 50000; // Default miner fee
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedTable; // seedTable Object
 // Per address
@@ -36,7 +36,6 @@ console.log(xpriv1.xprivkey);
 
 var actions = {
 	"select-unit": function (event) {
-		console.log("Select unit");
 		units.selected = $( this ).text();
 		units.update(this);
 	},
@@ -224,8 +223,8 @@ var seed = {
 		this.nextBlock();
 		seed.showDetails();
 		$.when(this.checked).done(function() {
-			seed.showSummary();
 			seed.balance = uto.getVal(seed.utos);
+			seed.showSummary();
 			console.log("Finished Processing Seed");
 		});
 	},
@@ -265,9 +264,6 @@ var seed = {
 			// BIP 44 
 			// m / purpose' / coin_type' / account' / change / address_index
 			var derived = this.hdKey.derive("m/44'/0'/0'/0/" + this.index.toString());
-			console.log("m/44'/0'/0'/0/" + this.index.toString());
-			console.log(derived.privateKey.toString());
-			console.log(derived.privateKey.toAddress().toString());
 		} else {
 			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
 		}
@@ -293,7 +289,6 @@ var seed = {
 			for(x in seed.utos) {
 				for(y in seed.utos[x]) {
 					if(thisAddr == seed.utos[x][y].address){
-						console.log("UTOs are: " + seed.utos[x][y].amount);
 						spendable += (seed.utos[x][y].amount);
 					}
 				}
@@ -312,9 +307,6 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	checked: $.Deferred(),
 	isSet: $.Deferred(),
 	check: function(addressSet) { // Check if block has been used.
-		console.log("Checking address set now.");
-		console.log(addressSet);
-		console.log(seed.utos);
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
 		var lastPt = 0;
 		this.reset();
@@ -332,7 +324,6 @@ var block = { // A block is an array of addresses or keys of length defined by b
 					checked++;
 					if( checked > blockSize ) { // Done checking all addresses in addressSet
 						if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
-							console.log("Next Block");
 							block.process(); // Check next block
 						} else {
 							block.last = true;
@@ -346,12 +337,8 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		f(0);
 	},
 	getBlock: function(array) { // Split array values into csv
-		console.log("Splitting: " + array);
-		console.log("From: " + ((array.length-1) - blockSize));
-		console.log("To: " + array.length);
 		array = array.slice(((array.length-1) - blockSize),array.length); // get last block
 		array = array.join(); // Comma seperated addrs.
-		console.log("Split array: " + array);
 		return array;
 	},
 	process: function() {
@@ -362,7 +349,6 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		})
 	},
 	set: function() { // Set utos and address for block
-		console.log("Setting");
 		uto.retrieved = $.Deferred();
 		seed.setAddresses();
 		uto.get(seed.addresses); // Get utos
@@ -401,7 +387,6 @@ var uto = {
 	get: function(addressSet) { // Lookup UTOs for set of addresses
 		//uto.retrieved = $.Deferred();
 		addressSet = block.getBlock(addressSet);
-		console.log(api + "addrs/" + addressSet + "/utxo");
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
 			uto.retrieved.resolve( uto.extract(data) );
@@ -412,20 +397,15 @@ var uto = {
 	},
 	extract: function(utoSet) { // 
 		var extracted = [];
-		console.log("UTO set: " + utoSet);
 		for(x in utoSet) {
-			console.log(x);
-			console.log("UTO address: " + utoSet[x].address);
 			utoSet[x].amount = units.btcToSats(utoSet[x].amount); // Set amount to satoshis
 			extracted.push(utoSet[x]);
 		}
 		return extracted;
 	},
 	find: function(address, utoSet) {
-		console.log("Find: " + address);
 		var attr = 'address';
 		for(var i = 0; i < utoSet.length; i += 1) {
-			console.log(utoSet[i][attr]);
 			if(utoSet[i][attr] === address) {
 				return i;
 			}
@@ -463,7 +443,6 @@ var html = {
 		}
 	},
 	getChildOfParent : function(parent,child) {
-		console.log(parent,child);
 		return ("." + $( $( parent ).children(( child )) )[0]["className"])
 	},
 	display : {
@@ -560,7 +539,6 @@ var html = {
 				tb.search( query ).draw();
 			},
 			clear: function(tb) {
-				console.log("Cleared!");
 				tb.rows().remove().draw();
 				$("#" + idNames.seedInfo).children("tbody").children("tr").remove();
 			},
@@ -703,7 +681,6 @@ function transErr(e) {
 }
 // ** SWEEP FUNDS ** 
 function sweepFunds(addr) {
-	console.log("Start Sweep");
 	var txID = "No ID";
 	var transaction = tran.create(addr, seed.utos);
 	txID = broadcastTx(transaction);
@@ -781,7 +758,6 @@ $(function() {
 		$(this).text($(this).text() == hidePrk ? showPrk : hidePrk);
 	});
 	$( "." + idNames.seedInfo ).on("click", ".qrcode-icon", function() {
-		console.log("Show modal!");
 		var qrCodeTxt = $(this).parent().text().replace( /\s/g, '');
 		if( $( this ).parents("td").hasClass( classNames.address ) ) {
 			docElements.modal.create( docElements.modal.qrCode(), html.display.addr, ("bitcoin:" + qrCodeTxt) );
