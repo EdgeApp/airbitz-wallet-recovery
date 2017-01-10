@@ -6,16 +6,18 @@ var insight = new Insight();
 
 var api = "https://insight.bitpay.com/api/";
 var insightAddr = "https://insight.bitpay.com/address/";
+var feeApi = "https://bitcoinfees.21.co/api/v1/fees/recommended";
 var sweepUnconfirmed = true;
 var HDPrivateKey = bitcore.HDPrivateKey;
 var hidePrk = "Hide Key", showPrk = "Show Key";
 var hideAllKeys = "Hide All", showAllKeys = "Show All";
 var keysToggeled = false; //All keys toggeled.
 var minerFee = 50000; // Default miner fee
+var feeRate = 200; // Default fee rate per byte in bits
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedTable; // seedTable Object
 // Per address
-var exchangeRate = 300;
+var exchangeRate = 1000;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
 var liBxNum = 0; var qrIndx = "qrcode-";
 var liBxNam = qrIndx + liBxNum; //Lightbox name
@@ -114,8 +116,32 @@ var tran = {
 	getFee : function(utos,amount) { // Get estimated transaction fee
 		var tran = new bitcore.Transaction()
 		.from(utos)
+		.change(firstSeedAddr)
 		.to(firstSeedAddr, amount);
-		return tran._estimateFee();
+
+		var bitcoreFee = tran.getFee();
+		console.log("Transaction amount: " + amount);
+		var estimatedSize = tran._estimateSize();
+		console.log("Transaction fee: " + tran._estimateSize());
+
+		console.log(feeRate);
+		console.log(feeRate * (estimatedSize));
+		return feeRate * (estimatedSize);
+		//return bitcoreFee;
+	},
+	getFeeRate : function() {
+		//fastestFee: The lowest fee (in satoshis per byte) that will currently result in the fastest transaction confirmations (usually 0 to 1 block delay).
+		$.ajax({
+			url: feeApi,
+			type: "GET",
+			crossDomain: true,
+			success: function( data ){
+				var feeRate = data.fastestFee;
+			},
+			error: function() {
+			console.log("Error getting recommened fee from 21");
+		}
+	});
 	}
 };
 var units = {
@@ -235,6 +261,8 @@ var seed = {
 	},
 	showSummary: function() {
 		minerFee = tran.getFee(seed.utos, seed.balance); // Get miner fee
+		console.log("Mining fee for balance of: " + seed.balance + " with utos of: " + seed.utos);
+		console.log("Recommended miner fee: " + minerFee);
 		docElements.loading.hide(); // Stop loading screen.
 		// Show main header text
 		docElements.header.show(seed.balance, minerFee);
@@ -730,6 +758,7 @@ function getLiBx() {
 }
 $(function() {
 	units.getUSD(); // Get USD Price
+	tran.getFeeRate(); // Fetch recommended fee rate from 21 bitcoinfees
 	$(".button-collapse").sideNav();
 	//Handelers
 	$("a[data-action]").on("click", function (event) {
