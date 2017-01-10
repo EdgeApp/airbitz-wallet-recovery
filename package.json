@@ -1,0 +1,23 @@
+{
+  "name": "airbitz-recovery",
+  "version": "1.0.0",
+  "description": "This is a Utility to recover funds from an Airbitz HD Seed.",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Airbitz/airbitz-wallet-recovery.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Airbitz/airbitz-wallet-recovery/issues"
+  },
+  "homepage": "https://github.com/Airbitz/airbitz-wallet-recovery#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-install": "^0.4.0"
+  }
+}

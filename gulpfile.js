@@ -1,14 +1,18 @@
-var gulp = require('gulp');
+
+var inline = require('gulp-inline')
+    , uglify = require('gulp-uglify')
+    , minifyCss = require('gulp-minify-css');
 
 gulp.task('default', function() {
   // place code for your default task here
-	var inline = require('gulp-inline')
-	 
-	gulp.src('src/index.html')
-	  .pipe(inline({
-	    base: 'src/',
-	    //disabledTypes: ['svg', 'img', 'js'], // Only inline css files 
-	    //ignore: ['./css/do-not-inline-me.css']
-	  }))
-	  .pipe(gulp.dest('dist/'));
+   
+  gulp.src('public/index.html')
+    .pipe(inline({
+      base: 'public/',
+      js: uglify(),
+      css: minifyCss(),
+      disabledTypes: ['svg', 'img', 'js'], // Only inline css files 
+      ignore: ['./css/do-not-inline-me.css']
+    }))
+    .pipe(gulp.dest('dist/'));
 });

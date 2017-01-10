@@ -1,11 +1,36 @@
 
-.navbar-default {
+.navbar-brand {
     color: #FFF;
     background-color: #2291cf;
-}
-.navbar-default .navbar-brand {
-    color: #FFF;
     font-weight: bold;
+}
+.airbitz-logo {
+    margin: 3px 0 0 10px;
+}
+.search-form {
+    width:60%;
+}
+#search {
+  display: inline;
+  height: auto;
+}
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: #FFF;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color: #FFF;
+   opacity:  1;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color: #FFF;
+   opacity:  1;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color: #FFF;
+}
+.header-brand {
+    font-weight: 300;
+    color:#2291cf;
 }
 .navbar .navbar-nav {
     display: inline-block;
@@ -16,51 +41,69 @@
 .navbar .navbar-collapse {
     text-align: center;
 }
-.currency-units{
-	color:white;
+.selected-nav {
+    background-color: #2291cf;
 }
-.currency-units: hover{
+.selected-nav {
+    background-color: #2291cf;
+}
+.selected-nav:hover .selected {
+    color: #444;
+}
+.currency-units, .selected-nav > .selected {
+	color: white;
+}
+.currency-units: hover {
 	color:#2291cf;
-	background-color:white;
+	background-color: white;
 }
 
-#main {
-    padding-top: 80px;
-    width:1200px;
-}
-
-.main-header{
+.main-header {
     width: 1205px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 114px;
 }
-.long-input{
-    
+.main-content {
+    width: 80%;
 }
-.seed-input{
-	width: 800px;
+.long-input {
+    width: 50%;
 }
-.addr-inpt-group{
-    width: 600px;
+.new-seed {
+	margin-right: 20px;
 }
 
 .modal {
   text-align: center;
+  width: 40%;
 }
-.prk{
+.modal-header , .modal-text {
+    
+    color: #2291cf;
+}
+.modal-header {
+    font-size: 2.5em;
+}
+.modal-text {
+    font-size: 1.3em;
+}
+
+.prk {
 	float:right;
 }
-.invisible{
+.invisible {
 	visibility: hidden;
 }
-
-.error-screen{
-	margin-top:10px;
+.gone, .selected-unit, .addr-input {
+    display:none;
+}
+.done {
+    color:green;
 }
 
-.table-container{
-padding-top:20px;
+.error-screen {
+	margin-top:10px;
 }
 
 

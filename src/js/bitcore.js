@@ -8255,9 +8255,10 @@ Transaction.prototype.uncheckedSerialize = Transaction.prototype.toString = func
 Transaction.prototype.checkedSerialize = function() {
   var feeError = this._validateFees();
   var missingChange = this._missingChange();
+  /*
   if (feeError && missingChange) {
     throw new errors.Transaction.ChangeAddressMissing();
-  }
+  }*/
   if (feeError && !missingChange) {
     throw new errors.Transaction.FeeError(feeError);
   }
@@ -8657,6 +8658,21 @@ Transaction.prototype.hasAllUtxoInfo = function() {
  */
 Transaction.prototype.fee = function(amount) {
   this._fee = amount;
+  this._updateChangeOutput();
+  return this;
+};
+
+/**
+ * Manually set the fee per KB for this transaction. Beware that this resets all the signatures
+ * for inputs (in further versions, SIGHASH_SINGLE or SIGHASH_NONE signatures will not
+ * be reset).
+ *
+ * @param {number} amount satoshis per KB to be sent
+ * @return {Transaction} this, for chaining
+ */
+Transaction.prototype.feePerKb = function(amount) {
+  $.checkArgument(_.isNumber(amount), 'amount must be a number');
+  this._feePerKb = amount;
   this._updateChangeOutput();
   return this;
 };
