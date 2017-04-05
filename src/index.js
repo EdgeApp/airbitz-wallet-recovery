@@ -16,6 +16,7 @@ var minerFee = 50000; // Default miner fee
 var feeRate = 200; // Default fee rate per byte in bits
 var blockSize = 50; // Chunk of addresses to check for at a time. Not to be confused with Bitcoin Blocks
 var seedTable; // seedTable Object
+var isOffline = false; // True if network connection fails
 // Per address
 var exchangeRate = 1000;
 var bitcoinB = '\u0E3F'; var mBitcoin = 'm'+'\u0E3F'; var bits = "b";
@@ -26,7 +27,8 @@ var errMeses = {
 	noSeed: "Please input a seed first",
 	noAddr: "Please input a valid address",
 	invalidSeed: "Invalid Seed",
-	networkErr: "Network Connection Error"
+	networkErr: "Network Connection Error",
+	utoError: "Unable to get UTOs"
 }
 
 /*
@@ -36,12 +38,17 @@ var xpriv1 = code.toHDPrivateKey(); // no passphrase
 console.log(xpriv1.xprivkey);
 */
 
+/*
+Possible user actions
+*/
+
 var actions = {
 	"select-unit": function (event) {
+		units.prevSelected = units.selected;
 		units.selected = $( this ).text();
 		units.update(this);
 	},
-	recover: function (event) { 
+	recover: function (event) {
 		if( !$( this ).hasClass( "disabled" ) ){
 			docElements.loading.show();
 			setTimeout(function() {
@@ -147,11 +154,12 @@ var tran = {
 var units = {
 	names: ["satoshis","bits","mBTC","BTC","USD"],
 	selected:"bits",
+	prevSelected:"",
 	satoshis:"/1",
 	bits:"/100",
 	mBTC:"/100000",
 	BTC:"/100000000",
-	USD: 1000, // Default 1000 price
+	USD: false, // Default false
 	unitAmt: "",
 	getUSD: function(){
 		$.ajax({
@@ -181,7 +189,6 @@ var units = {
 			this.unitAmt = this.unitAmt.BTC + " " + this.names[3];
 			break;
 			case "USD":
-			this.getUSD(); // Fetch the price of USD
 			this.unitAmt = bitcore.Unit.fromSatoshis(satsAmt).to(this.USD) + " " + this.names[4];
 			break;
 			default:
@@ -194,9 +201,20 @@ var units = {
 	},
 	update: function(unitToUpdate){
 		// Nav bar
-		units.selected = $(unitToUpdate).text();
-		$( ".selected" ).text(units.selected);
-		$( ".selected-dropdown" ).html(units.selected + html.elements.dropdown);
+		console.log(units.prevSelected);
+		this.selected = $(unitToUpdate).text();
+		if(this.selected === "USD") {
+			if(!this.USD || this.USD == null) {
+				var userPrice = prompt("What is the current bitcoin price?");
+				if(userPrice == null) { // If user didn't input any value for the price
+					this.update(units.prevSelected);
+				} else {
+					this.USD = userPrice;
+				}
+			}
+		}
+		$( ".selected" ).text(this.selected);
+		$( ".selected-dropdown" ).html(this.selected + html.elements.dropdown);
 		$( ".selected-unit" ).removeClass("selected-unit");
 		$( unitToUpdate ).parent().addClass("selected-unit");
 		// Body
@@ -334,6 +352,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	totalUnconfirmed: 0,
 	checked: $.Deferred(),
 	isSet: $.Deferred(),
+	hadNetworkError: false,
 	check: function(addressSet) { // Check if block has been used.
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
 		var lastPt = 0;
@@ -393,13 +412,15 @@ var block = { // A block is an array of addresses or keys of length defined by b
 	getReceived: function(addr) { // Get total ever sent to single address
 		return $.get( api + "addr/" + addr + "/totalReceived" )
 		.fail(function() {
-			docElements.showMes(errMeses.networkErr);
+			//docElements.showMes(errMeses.networkErr);
+			block.hadNetworkError = true;
 		});
 	},
 	getUnconfirmed: function(addr) { // Get total unconfirmed balance of single address.
 		return $.get( api + "addr/" + addr + "/unconfirmedBalance")
 		.fail(function() {
-			docElements.showMes(errMeses.networkErr);
+			//docElements.showMes(errMeses.networkErr);
+			block.hadNetworkError = true;
 		});
 	},
 	reset: function() {
@@ -413,14 +434,14 @@ var block = { // A block is an array of addresses or keys of length defined by b
 var uto = {
 	retrieved: $.Deferred(),
 	get: function(addressSet) { // Lookup UTOs for set of addresses
-		//uto.retrieved = $.Deferred();
 		addressSet = block.getBlock(addressSet);
 		$.get(api + "addrs/" + addressSet + "/utxo")
 		.done(function( data ) { // Data = all utos in addressSet
 			uto.retrieved.resolve( uto.extract(data) );
 		})
 		.fail(function() {
-			docElements.showMes(errMeses.networkErr);
+			docElements.showMes(errMeses.utoError);
+			uto.retrieved.resolve();
 		});
 	},
 	extract: function(utoSet) { // 
@@ -757,7 +778,7 @@ function getLiBx() {
 	return " <i class=\"fa fa-qrcode fa-lg qrcode-icon\"><div class=\"" + liBxNam + "\"></div></i> ";
 }
 $(function() {
-	units.getUSD(); // Get USD Price
+	units.getUSD(); // Fetch the price of USD
 	tran.getFeeRate(); // Fetch recommended fee rate from 21 bitcoinfees
 	$(".button-collapse").sideNav();
 	//Handelers
