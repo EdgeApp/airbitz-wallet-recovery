@@ -365,7 +365,11 @@ var block = { // A block is an array of addresses or keys of length defined by b
 				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
 				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
-				.done(function( received, unconfirmed) {
+				.always(function( received, unconfirmed) {
+					if(block.hadNetworkError) { // If there was a netowrk error this block,
+						docElements.showMes(errMeses.networkErr); // Show an error message
+						seed.checked.resolve(); // Finish checking - No network connection so unable to get total balance
+					}
 					block.totalReceived += received[0];
 					block.totalUnconfirmed += unconfirmed[0];
 					checked++;
@@ -378,7 +382,11 @@ var block = { // A block is an array of addresses or keys of length defined by b
 						}
 					}
 				});
-				f(counter+1);
+				try{
+					f(counter+1);
+				} catch(e) {
+
+				}
 			}
 		};
 		f(0);
@@ -414,6 +422,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		.fail(function() {
 			//docElements.showMes(errMeses.networkErr);
 			block.hadNetworkError = true;
+			return 0;
 		});
 	},
 	getUnconfirmed: function(addr) { // Get total unconfirmed balance of single address.
@@ -421,6 +430,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		.fail(function() {
 			//docElements.showMes(errMeses.networkErr);
 			block.hadNetworkError = true;
+			return 0;
 		});
 	},
 	reset: function() {
