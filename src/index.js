@@ -30,7 +30,7 @@ var errMeses = {
 	networkErr: "Network Connection Error",
 	utoError: "Unable to get UTOs"
 }
-
+var userSelectedIndex = 0;
 /*
 var code = new Mnemonic('select scout crash enforce riot rival spring whale hollow radar rule sentence');
 console.log("The code is: " + Mnemonic.isValid(code));
@@ -357,7 +357,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 		var startingPoint = (addressSet.length-blockSize); // Nubmer of Addresses - Blocksize
 		var lastPt = 0;
 		this.reset();
-		var checked = 0;
+		var checked = 0; // Total addresses checekd
 		var f = function(counter) {
 			if( counter <= blockSize ) {
 				lastPt = (counter + (startingPoint - 1));
@@ -370,10 +370,21 @@ var block = { // A block is an array of addresses or keys of length defined by b
 					block.totalUnconfirmed += unconfirmed[0];
 					checked++;
 					if( checked > blockSize ) { // Done checking all addresses in addressSet
-						if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
-							block.process(); // Check next block
+						if( userSelectedIndex ){ // If the user selected a number of index's to search
+							console.log(seed.index + " " + userSelectedIndex);
+							if( userSelectedIndex < seed.index) {
+								block.last = true;
+							} else {
+								block.process();
+							}
 						} else {
-							block.last = true;
+							if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
+								block.process(); // Check next block
+							} else {
+								block.last = true;
+							}
+						}
+						if(block.last) {
 							if(block.hadNetworkError) { // If there was a netowrk error this block,
 								docElements.showMes(errMeses.networkErr); // Show an error message
 							}
@@ -538,7 +549,8 @@ var html = {
 		modalText: "modal-text",
 		modalFoot: "modal-footer",
 		reset: "new-seed",
-		waves: "waves-effect"
+		waves: "waves-effect",
+		moreInfo: "more-options"
 	},
 	elements : {
 		dropdown: "<i class=\"material-icons right\">arrow_drop_down</i>",
@@ -806,6 +818,10 @@ $(function() {
 		if( typeof actions[action] === "function" ) {
 			actions[action].call(this, event);
 		}
+	});
+	$( "." + classNames.moreInfo ).click(function() {
+		console.log("More info!");
+		userSelectedIndex = prompt("How many index's do you want to search?");
 	});
 	$( "." + idNames.seedInfo ).on( "click", "#toggleAllKeys", function() {
 		keysToggeled = (keysToggeled == false ? true : false);
