@@ -366,10 +366,6 @@ var block = { // A block is an array of addresses or keys of length defined by b
 				lastPt = (counter + (startingPoint - 1));
 				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
 				.always(function( received, unconfirmed) {
-					if(block.hadNetworkError) { // If there was a netowrk error this block,
-						docElements.showMes(errMeses.networkErr); // Show an error message
-						seed.checked.resolve(); // Finish checking - No network connection so unable to get total balance
-					}
 					block.totalReceived += received[0];
 					block.totalUnconfirmed += unconfirmed[0];
 					checked++;
@@ -378,6 +374,9 @@ var block = { // A block is an array of addresses or keys of length defined by b
 							block.process(); // Check next block
 						} else {
 							block.last = true;
+							if(block.hadNetworkError) { // If there was a netowrk error this block,
+								docElements.showMes(errMeses.networkErr); // Show an error message
+							}
 							seed.checked.resolve(); // Finish checking
 						}
 					}
