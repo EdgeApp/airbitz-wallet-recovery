@@ -2,8 +2,7 @@
 <html>
 <head>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/1.0.6/css/dataTables.responsive.css">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link href="css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" />
+        <link href="css/materialFonts.css" rel="stylesheet">
          <!--Import materialize.css-->
         <link type="text/css" rel="stylesheet" href="css/materialize.css"  media="screen,projection"/>
         <link rel="stylesheet" href="vendors/font-awesome/css/font-awesome.css">
@@ -34,6 +33,7 @@
           <li class="gone"><a href="#!"><i class="material-icons">refresh</i></a></li>
           <!-- Dropdown Trigger -->
           <li><a class="dropdown-button selected-dropdown" href="#!" data-activates="units">bits<i class="material-icons right ">arrow_drop_down</i></a></li>
+          <li><a class="more-options" href="#!"><i class="material-icons">more_vert</i></a></li>
         </ul>
         <ul id="nav-functions" class="side-nav">
             <li class="hide-on-large-only gone"><a class="search" href="#!">Search</a>
@@ -48,6 +48,7 @@
             <li><a class="unit-selector satoshis-unit" href="#!">Satoshis</a></li>
             <li class="divider"></li>
             <li class="selected-nav"><a class="selected" href="#!">bits</a></li>
+            <li><a href="#" class="more-options">More options</a></li>
         </ul>
         <center>
             <form class="search-form hide-on-med-and-down">
@@ -136,7 +137,7 @@
     <div id="qr-code-test"></div>
     <script src="js/jquery.min.js"></script>
     <script src="vendors/bitcore-explorers/bitcore-explorers.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="js/jquery.dataTables.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bitcore.js"></script>
     <script src="js/bitcore-mnemonic.js"></script>
