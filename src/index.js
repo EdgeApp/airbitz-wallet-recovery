@@ -364,39 +364,43 @@ var block = { // A block is an array of addresses or keys of length defined by b
 				seed.data.push(seed.getInfo(lastPt)); // Get seed data
 				seedTable.row.add(seed.data[lastPt]).draw(); // Push seed data to table
 				lastPt = (counter + (startingPoint - 1));
-				$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
-				.always(function( received, unconfirmed) {
-					block.totalReceived += received[0];
-					block.totalUnconfirmed += unconfirmed[0];
-					checked++;
-					if( checked > blockSize ) { // Done checking all addresses in addressSet
-						if( userSelectedIndex ){ // If the user selected a number of index's to search
-							console.log(seed.index + " " + userSelectedIndex);
-							if( userSelectedIndex < seed.index) {
-								block.last = true;
-							} else {
-								block.process();
+				setTimeout(
+					function()
+					{
+						$.when( block.getReceived(addressSet[lastPt]), block.getUnconfirmed(addressSet[lastPt]) )
+						.always(function( received, unconfirmed) {
+							block.totalReceived += received[0];
+							block.totalUnconfirmed += unconfirmed[0];
+							checked++;
+							if( checked > blockSize ) { // Done checking all addresses in addressSet
+								if( userSelectedIndex ){ // If the user selected a number of index's to search
+									console.log(seed.index + " " + userSelectedIndex);
+									if( userSelectedIndex < seed.index) {
+										block.last = true;
+									} else {
+										block.process();
+									}
+								} else {
+									if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
+										block.process(); // Check next block
+									} else {
+										block.last = true;
+									}
+								}
+								if(block.last) {
+									if(block.hadNetworkError) { // If there was a netowrk error this block,
+										docElements.showMes(errMeses.networkErr); // Show an error message
+									}
+									seed.checked.resolve(); // Finish checking
+								}
 							}
-						} else {
-							if( block.getTotal() > 0 && (!block.last) ) { // If the block had money
-								block.process(); // Check next block
-							} else {
-								block.last = true;
-							}
-						}
-						if(block.last) {
-							if(block.hadNetworkError) { // If there was a netowrk error this block,
-								docElements.showMes(errMeses.networkErr); // Show an error message
-							}
-							seed.checked.resolve(); // Finish checking
-						}
-					}
-				});
-				try{
-					f(counter+1);
-				} catch(e) {
+						});
+						try{
+							f(counter+1);
+						} catch(e) {
 
-				}
+						}
+					}, 1000);
 			}
 		};
 		f(0);
