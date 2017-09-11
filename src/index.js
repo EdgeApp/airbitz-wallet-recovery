@@ -242,6 +242,9 @@ var seed = {
 		this.checked = $.Deferred();
 		this.addresses.length = 0;
 		block.addresses.length = 0;
+		this.addresses = [];
+		this.keys = [];
+		this.hdKey = {};
 		block.keys.length = 0;
 		this.utos.length = 0;
 		this.data.length = 0;
@@ -313,6 +316,7 @@ var seed = {
 		} else {
 			var derived = this.hdKey.derive("m/0/0/" + this.index.toString());
 		}
+		console.log(this.index);
 		return derived.privateKey;
 	},
 	nextBlock: function() { // Process next block of keys and addresses in seed.
@@ -400,7 +404,7 @@ var block = { // A block is an array of addresses or keys of length defined by b
 						} catch(e) {
 
 						}
-					}, 1000);
+					}, 600);
 			}
 		};
 		f(0);
@@ -468,7 +472,7 @@ var uto = {
 			uto.retrieved.resolve();
 		});
 	},
-	extract: function(utoSet) { // 
+	extract: function(utoSet) { // Return array of balance in utoSet
 		var extracted = [];
 		for(x in utoSet) {
 			utoSet[x].amount = units.btcToSats(utoSet[x].amount); // Set amount to satoshis
